@@ -383,7 +383,7 @@
       background: rgba(248, 113, 113, 0.18);
       color: var(--red-accent);
     }
-    .status-push {
+    .status-push, .status-tied {
       background: rgba(96, 165, 250, 0.12);
       color: var(--blue-accent);
     }
@@ -1306,7 +1306,7 @@ function getRRLegStatus(pick) {
   }
   if (gTP < oTP) return 'winning';
   if (gTP > oTP) return 'losing';
-  return 'push';
+  return 'tied';
 }
 
 function getRRParlayStatus(parlay) {
@@ -1528,7 +1528,7 @@ function getBetStatus(bet) {
     if (g.cut && opp.cut) return 'push';
     if (g.toParNum < opp.toParNum) return 'winning';
     if (g.toParNum > opp.toParNum) return 'losing';
-    return 'push';
+    return 'tied';
   }
   if (bet.type === 'r2matchup') {
     const opp = golfers[bet.opponent];
@@ -1548,7 +1548,7 @@ function getBetStatus(bet) {
     // In progress — compare to-par (fair across different hole counts)
     if (gToPar < oToPar) return 'winning';
     if (gToPar > oToPar) return 'losing';
-    return 'push';
+    return 'tied';
   }
   if (bet.type === 'r2under') {
     if (g.r2Thru === 0 || g.r2Strokes === null) return 'pending';
@@ -1582,7 +1582,7 @@ function getBetStatus(bet) {
     }
     if (gTP < o1TP && gTP < o2TP) return 'winning';
     if (gTP > o1TP || gTP > o2TP) return 'losing';
-    return 'push';
+    return 'tied';
   }
   return 'pending';
 }
@@ -1594,7 +1594,8 @@ function statusLabel(status) {
     losing: '↓ Losing',
     won: '✓ Won',
     lost: '✗ Lost',
-    push: '↔ Push'
+    push: '↔ Push',
+    tied: '↔ Tied'
   };
   return labels[status] || status;
 }
