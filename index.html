@@ -1824,7 +1824,7 @@ function renderKPIs() {
     const roi = settledRisk > 0 ? ((pnl / settledRisk) * 100).toFixed(1) : 0;
     pnlEl.textContent = (pnl >= 0 ? '+' : '-') + formatMoney(pnl);
     pnlEl.className = 'kpi-value ' + (pnl >= 0 ? 'kpi-green' : 'kpi-red');
-    pnlSubEl.textContent = `${settled}/${bets.length} settled \u00B7 ROI: ${pnl >= 0 ? '+' : ''}${roi}%`;
+    pnlSubEl.textContent = `${settled}/${bets.length + rrParlays.length} settled \u00B7 ROI: ${pnl >= 0 ? '+' : ''}${roi}%`;
     const losses = settled - wins - pushes;
     const decisioned = wins + losses;
     const winPct = decisioned > 0 ? Math.round((wins / decisioned) * 100) : 0;
