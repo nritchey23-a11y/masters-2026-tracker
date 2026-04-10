@@ -1613,13 +1613,83 @@ function renderGolferCards() {
     golferBets[b.golfer].push(b);
   });
 
-  grid.innerHTML = Object.entries(golferBets).sort((a, b) => b[1].reduce((s, bet) => s + bet.risk, 0) - a[1].reduce((s, bet) => s + bet.risk, 0)).map(([name, playerBets]) => {
+  // Build RR data per golfer
+  const rrByGolfer = {};
+  rrPicks.forEach(pick => {
+    const myParlays = rrParlays.filter(p => p.legs.some(l => l.name === pick.name));
+    const alive = myParlays.filter(p => getRRParlayStatus(p) !== 'lost').length;
+    const dead = myParlays.length - alive;
+    const legStatus = getRRLegStatus(pick);
+    const rrRisk = myParlays.length * RR_BET_SIZE;
+    rrByGolfer[pick.name] = { pick, parlays: myParlays, alive, dead, legStatus, rrRisk };
+  });
+
+  grid.innerHTML = Object.entries(golferBets).sort((a, b) => {
+    const aRisk = a[1].reduce((s, bet) => s + bet.risk, 0) + (rrByGolfer[a[0]] ? rrByGolfer[a[0]].rrRisk : 0);
+    const bRisk = b[1].reduce((s, bet) => s + bet.risk, 0) + (rrByGolfer[b[0]] ? rrByGolfer[b[0]].rrRisk : 0);
+    return bRisk - aRisk;
+  }).map(([name, playerBets]) => {
     const g = golfers[name];
     const totalRisk = playerBets.reduce((s, b) => s + b.risk, 0);
     const totalToWin = playerBets.reduce((s, b) => s + b.toWin, 0);
     const currentRd = currentRound >= 2 ? 'R2' : 'R1';
-    const currentRdThru = g.thru; // Already set to current round's thru
-    const thruLabel = currentRdThru === 0 ? `${currentRd} — Not started` : currentRdThru >= 18 ? `${currentRd} complete` : `${currentRd} • Thru ${currentRdThru}`;
+    const currentRdThru = g.thru;
+    const thruLabel = currentRdThru === 0 ? `${currentRd} \u2014 Not started` : currentRdThru >= 18 ? `${currentRd} complete` : `${currentRd} \u2022 Thru ${currentRdThru}`;
+
+    // RR section for this golfer
+    const rr = rrByGolfer[name];
+    let rrHtml = '';
+    if (rr) {
+      const lsLabel = statusLabel(rr.legStatus);
+      const lsCls = 'status-' + rr.legStatus;
+      const oddsStr = rr.pick.odds > 0 ? '+' + rr.pick.odds : String(rr.pick.odds);
+      const gTP = r2ToPar(g);
+      const opp = golfers[rr.pick.opponent];
+      const oTP = r2ToPar(opp);
+      const rrCardId = 'rr-detail-' + name.replace(/\s+/g, '-');
+      // Build expandable parlay list
+      const parlayRows = rr.parlays.map(p => {
+        const pStatus = getRRParlayStatus(p);
+        const legNames = p.legs.map(l => l.name.split(' ').pop()).join(' + ');
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:11px;color:var(--text-muted);">${legNames} <span style="color:var(--text-faint);">${p.americanOdds}</span></span>
+          <span class="status-chip status-${pStatus}" style="font-size:9px;padding:1px 6px;">${statusLabel(pStatus)}</span>
+        </div>`;
+      }).join('');
+
+      rrHtml = `
+        <div style="border-top:1px solid var(--border);margin-top:4px;padding-top:8px;">
+          <div class="golfer-bet-row" style="cursor:pointer;" onclick="document.getElementById('${rrCardId}').style.display = document.getElementById('${rrCardId}').style.display === 'none' ? 'block' : 'none'">
+            <span class="golfer-bet-type">
+              <span style="color:var(--gold-accent);font-weight:700;font-size:11px;">R2 ROUND ROBIN</span>
+              <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">vs ${rr.pick.opponent} <span class="odds ${rr.pick.odds > 0 ? 'plus' : 'minus'}" style="font-size:11px">${oddsStr}</span></span>
+            </span>
+            <span class="golfer-bet-payout" style="display:flex;align-items:center;gap:6px;">
+              <span class="status-chip ${lsCls}" style="font-size:10px;padding:2px 6px;">${lsLabel}</span>
+            </span>
+          </div>
+          <div class="golfer-bet-row">
+            <span style="font-size:11px;color:var(--text-muted);">
+              <span class="score-cell ${gTP.cls}" style="font-size:12px;">${gTP.display}</span>
+              <span style="color:var(--text-faint);margin:0 4px;">vs</span>
+              <span class="score-cell ${oTP.cls}" style="font-size:12px;">${oTP.display}</span>
+            </span>
+            <span style="font-size:11px;color:var(--text-muted);">
+              <span style="color:var(--green-accent);">${rr.alive} alive</span>
+              ${rr.dead > 0 ? '<span style="color:var(--red-accent);margin-left:4px;">' + rr.dead + ' dead</span>' : ''}
+              <span style="color:var(--text-faint);margin-left:4px;">of ${rr.parlays.length}</span>
+            </span>
+          </div>
+          <div id="${rrCardId}" style="display:none;margin-top:6px;padding:6px 8px;background:var(--surface);border-radius:var(--radius-sm);max-height:180px;overflow-y:auto;">
+            ${parlayRows}
+          </div>
+        </div>`;
+    }
+
+    const rrRiskAmt = rr ? rr.rrRisk : 0;
+    const combinedRisk = totalRisk + rrRiskAmt;
+    const combinedPotential = totalToWin + (rr ? rr.parlays.filter(p => getRRParlayStatus(p) !== 'lost').reduce((s, p) => s + p.profit, 0) : 0);
+
     return `<div class="golfer-card">
       <div class="golfer-card-header">
         <div>
@@ -1641,9 +1711,10 @@ function renderGolferCards() {
             </span>
           </div>`;
         }).join('')}
+        ${rrHtml}
         <div class="golfer-bet-row" style="background:var(--surface-3);">
           <span class="golfer-bet-type" style="color:var(--text);">Total Exposure</span>
-          <span class="golfer-bet-payout" style="color:var(--text);">$${totalRisk} risked &bull; $${totalToWin.toLocaleString()} potential</span>
+          <span class="golfer-bet-payout" style="color:var(--text);">$${combinedRisk.toLocaleString()} risked${rr ? ' <span style="font-size:10px;color:var(--text-faint)">(incl. $' + rrRiskAmt + ' RR)</span>' : ''} &bull; $${combinedPotential.toLocaleString()} potential</span>
         </div>
       </div>
     </div>`;
