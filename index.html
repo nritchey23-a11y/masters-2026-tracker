@@ -1198,6 +1198,15 @@ async function fetchLiveScores() {
     if (!event) throw new Error('No active event');
     const competitors = event.competitions?.[0]?.competitors || [];
     const trackedNames = Object.keys(golfers);
+    // Normalize accented ESPN names to match our golfer keys
+    function matchGolferName(espnName) {
+      if (golfers[espnName]) return espnName;
+      // Strip diacritics and try again
+      const stripped = espnName.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+      if (golfers[stripped]) return stripped;
+      // Check all keys with same normalization
+      return trackedNames.find(k => k.normalize('NFKD').replace(/[\u0300-\u036f]/g, '') === stripped) || null;
+    }
 
     // Detect current round from linescores
     const maxRounds = Math.max(...competitors.map(c => (c.linescores || []).length), 1);
@@ -1223,7 +1232,7 @@ async function fetchLiveScores() {
         r1Strokes: r1.value || null,
         r2Strokes: r2.value || null,
         cut: c.status?.type?.name === 'cut',
-        tracked: trackedNames.includes(c.athlete?.displayName)
+        tracked: !!matchGolferName(c.athlete?.displayName)
       };
     }).sort((a, b) => (a.order || 999) - (b.order || 999));
 
@@ -1254,8 +1263,9 @@ async function fetchLiveScores() {
     fullLeaderboard.forEach(p => { posLookup[p.name] = { displayPos: p.displayPos, pos: p.pos }; });
 
     for (const c of competitors) {
-      const name = c.athlete?.displayName;
-      if (!name || !trackedNames.includes(name)) continue;
+      const espnName = c.athlete?.displayName;
+      const name = espnName ? matchGolferName(espnName) : null;
+      if (!name) continue;
       const g = golfers[name];
       const ls = c.linescores || [];
       const r1 = ls[0] || {};
@@ -1263,8 +1273,10 @@ async function fetchLiveScores() {
       const r1Thru = r1Holes.length;
       const r1Strokes = r1.value || 0;
 
-      g.pos = posLookup[name]?.pos || null;
-      g.displayPos = posLookup[name]?.displayPos || '\u2014';
+      // Try both our key name and the ESPN name for posLookup
+      const posEntry = posLookup[name] || posLookup[espnName] || {};
+      g.pos = posEntry.pos || null;
+      g.displayPos = posEntry.displayPos || '\u2014';
       g.toPar = c.score || 'E';
       g.toParNum = parseToPar(c.score);
       g.r1Thru = r1Thru;
