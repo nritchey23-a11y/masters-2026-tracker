@@ -1294,13 +1294,16 @@ function getRRLegStatus(pick) {
   const opp = golfers[pick.opponent];
   if (!g || !opp) return 'pending';
   if (g.r2Thru === 0 || opp.r2Thru === 0) return 'pending';
+  // Compare using to-par for fair comparison across different thru counts
+  const gTP = g.r2Strokes - parThrough(g.r2Thru);
+  const oTP = opp.r2Strokes - parThrough(opp.r2Thru);
   if (g.r2Thru >= 18 && opp.r2Thru >= 18) {
-    if (g.r2Strokes < opp.r2Strokes) return 'won';
-    if (g.r2Strokes > opp.r2Strokes) return 'lost';
+    if (gTP < oTP) return 'won';
+    if (gTP > oTP) return 'lost';
     return 'push';
   }
-  if (g.r2Strokes < opp.r2Strokes) return 'winning';
-  if (g.r2Strokes > opp.r2Strokes) return 'losing';
+  if (gTP < oTP) return 'winning';
+  if (gTP > oTP) return 'losing';
   return 'push';
 }
 
@@ -1525,18 +1528,19 @@ function getBetStatus(bet) {
     if (!opp) return 'pending';
     // Both need R2 holes to evaluate
     if (g.r2Thru === 0 && opp.r2Thru === 0) return 'pending';
-    // If one hasn't started R2 but the other has, still pending-ish
     if (g.r2Thru === 0 || opp.r2Thru === 0) return 'pending';
-    // Compare R2 strokes (lower is better) — normalize by holes if different thru counts
+    // Compare using R2 to-par (strokes vs par for holes played) for fair comparison
+    const gToPar = g.r2Strokes - parThrough(g.r2Thru);
+    const oToPar = opp.r2Strokes - parThrough(opp.r2Thru);
     if (g.r2Thru >= 18 && opp.r2Thru >= 18) {
       // Both finished R2 — settled
-      if (g.r2Strokes < opp.r2Strokes) return 'won';
-      if (g.r2Strokes > opp.r2Strokes) return 'lost';
+      if (gToPar < oToPar) return 'won';
+      if (gToPar > oToPar) return 'lost';
       return 'push';
     }
-    // In progress — compare strokes at same hole count or raw
-    if (g.r2Strokes < opp.r2Strokes) return 'winning';
-    if (g.r2Strokes > opp.r2Strokes) return 'losing';
+    // In progress — compare to-par (fair across different hole counts)
+    if (gToPar < oToPar) return 'winning';
+    if (gToPar > oToPar) return 'losing';
     return 'push';
   }
   if (bet.type === 'r2under') {
@@ -1556,18 +1560,21 @@ function getBetStatus(bet) {
     const opp2 = golfers[bet.opponent2];
     if (!opp1 || !opp2) return 'pending';
     if (g.r2Thru === 0 || g.r2Strokes === null) return 'pending';
-    const gS = g.r2Strokes;
     const o1S = opp1.r2Thru > 0 ? opp1.r2Strokes : null;
     const o2S = opp2.r2Thru > 0 ? opp2.r2Strokes : null;
     if (o1S === null || o2S === null) return 'pending';
+    // Compare using to-par for fair comparison across different thru counts
+    const gTP = g.r2Strokes - parThrough(g.r2Thru);
+    const o1TP = o1S - parThrough(opp1.r2Thru);
+    const o2TP = o2S - parThrough(opp2.r2Thru);
     const allDone = g.r2Thru >= 18 && opp1.r2Thru >= 18 && opp2.r2Thru >= 18;
     if (allDone) {
-      if (gS < o1S && gS < o2S) return 'won';
-      if (gS <= o1S && gS <= o2S && (gS === o1S || gS === o2S)) return 'push';
+      if (gTP < o1TP && gTP < o2TP) return 'won';
+      if (gTP <= o1TP && gTP <= o2TP && (gTP === o1TP || gTP === o2TP)) return 'push';
       return 'lost';
     }
-    if (gS < o1S && gS < o2S) return 'winning';
-    if (gS > o1S || gS > o2S) return 'losing';
+    if (gTP < o1TP && gTP < o2TP) return 'winning';
+    if (gTP > o1TP || gTP > o2TP) return 'losing';
     return 'push';
   }
   return 'pending';
