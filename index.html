@@ -1176,12 +1176,30 @@ function getRRParlayStatus(parlay) {
   const statuses = parlay.legs.map(getRRLegStatus);
   if (statuses.some(s => s === 'lost')) return 'lost';
   if (statuses.every(s => s === 'won')) return 'won';
+  // Push reduces the parlay: remove push legs, if remaining all won → won at reduced odds
   if (statuses.some(s => s === 'push')) {
-    if (statuses.every(s => s === 'won' || s === 'push')) return 'push';
+    const nonPush = statuses.filter(s => s !== 'push');
+    if (nonPush.length === 0) return 'push'; // all legs pushed → full refund
+    if (nonPush.every(s => s === 'won')) return 'won'; // reduced parlay won
+    if (nonPush.some(s => s === 'lost')) return 'lost';
   }
   if (statuses.every(s => s === 'won' || s === 'winning')) return 'winning';
   if (statuses.some(s => s === 'losing')) return 'losing';
   return 'pending';
+}
+
+// Calculate effective profit for a parlay (accounts for push-reduced legs)
+function getRRParlayProfit(parlay) {
+  const statuses = parlay.legs.map(getRRLegStatus);
+  const pushCount = statuses.filter(s => s === 'push').length;
+  if (pushCount === 0) return parlay.profit; // no pushes, use original odds
+  if (pushCount === parlay.legs.length) return 0; // all pushed → refund, $0 profit
+  // Recalculate with only non-push legs
+  let reducedDecOdds = 1;
+  parlay.legs.forEach((leg, i) => {
+    if (statuses[i] !== 'push') reducedDecOdds *= leg.decimalOdds;
+  });
+  return +((RR_BET_SIZE * reducedDecOdds) - RR_BET_SIZE).toFixed(2);
 }
 
 const rrParlays = generateRRParlays();
@@ -1718,7 +1736,7 @@ function renderGolferCards() {
 
     const rrRiskAmt = rr ? rr.rrRisk : 0;
     const combinedRisk = totalRisk + rrRiskAmt;
-    const combinedPotential = totalToWin + (rr ? rr.parlays.filter(p => getRRParlayStatus(p) !== 'lost').reduce((s, p) => s + p.profit, 0) : 0);
+    const combinedPotential = totalToWin + (rr ? rr.parlays.filter(p => getRRParlayStatus(p) !== 'lost').reduce((s, p) => s + getRRParlayProfit(p), 0) : 0);
 
     return `<div class="golfer-card">
       <div class="golfer-card-header">
@@ -1787,10 +1805,10 @@ function renderKPIs() {
   // Include Round Robin parlays in KPIs
   rrParlays.forEach(p => {
     const status = getRRParlayStatus(p);
-    if (status === 'won') { pnl += p.profit; settled++; wins++; settledRisk += RR_BET_SIZE; }
+    if (status === 'won') { pnl += getRRParlayProfit(p); settled++; wins++; settledRisk += RR_BET_SIZE; }
     if (status === 'lost') { pnl -= RR_BET_SIZE; settled++; settledRisk += RR_BET_SIZE; }
     if (status === 'push') { settled++; pushes++; }
-    if (status === 'won' || status === 'winning') { projPnl += p.profit; }
+    if (status === 'won' || status === 'winning') { projPnl += getRRParlayProfit(p); }
     else if (status === 'lost' || status === 'losing') { projPnl -= RR_BET_SIZE; }
   });
 
@@ -2031,10 +2049,10 @@ function renderRoundRobin() {
   const totalRRRisk = rrParlays.length * RR_BET_SIZE;
   rrParlays.forEach(p => {
     const status = getRRParlayStatus(p);
-    if (status === 'won') { rrRealized += p.profit; rrSettledRisk += RR_BET_SIZE; rrWins++; }
+    if (status === 'won') { rrRealized += getRRParlayProfit(p); rrSettledRisk += RR_BET_SIZE; rrWins++; }
     if (status === 'lost') { rrRealized -= RR_BET_SIZE; rrSettledRisk += RR_BET_SIZE; rrLosses++; }
     if (status === 'push') { rrPushes++; }
-    if (status === 'won' || status === 'winning') { rrProjected += p.profit; }
+    if (status === 'won' || status === 'winning') { rrProjected += getRRParlayProfit(p); }
     else if (status === 'lost' || status === 'losing') { rrProjected -= RR_BET_SIZE; }
   });
   const rrProjRoi = totalRRRisk > 0 ? ((rrProjected / totalRRRisk) * 100).toFixed(1) : '0.0';
@@ -2192,7 +2210,7 @@ function checkFeedUpdates() {
     if (settledStatuses.has(status) && !knownSettled.has(rrKey)) {
       const legNames = p.legs.map(l => l.name.split(' ').pop()).join(' + ');
       let pnl = 0;
-      if (status === 'won') pnl = p.profit;
+      if (status === 'won') pnl = getRRParlayProfit(p);
       else if (status === 'lost') pnl = -RR_BET_SIZE;
       feedEntries.unshift({
         time: isFirstFeedRun ? 'Earlier' : timeStr,
