@@ -1906,10 +1906,8 @@ function renderRoundRobin() {
     const status = getRRLegStatus(p);
     const g = golfers[p.name];
     const opp = golfers[p.opponent];
-    const gR2 = g && g.r2Thru > 0 ? g.r2Strokes : '\u2014';
-    const oR2 = opp && opp.r2Thru > 0 ? opp.r2Strokes : '\u2014';
-    const gThru = g && g.r2Thru > 0 ? (g.r2Thru >= 18 ? 'F' : g.r2Thru + 'H') : '';
-    const oThru = opp && opp.r2Thru > 0 ? (opp.r2Thru >= 18 ? 'F' : opp.r2Thru + 'H') : '';
+    const gTP = r2ToPar(g);
+    const oTP = r2ToPar(opp);
     const oddsStr = p.odds > 0 ? '+' + p.odds : String(p.odds);
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:4px;">
       <div style="display:flex;align-items:center;gap:10px;">
@@ -1919,9 +1917,9 @@ function renderRoundRobin() {
         <span style="color:var(--text-faint);font-size:12px;">vs ${p.opponent}</span>
       </div>
       <div style="font-family:var(--font-mono);font-size:13px;display:flex;gap:16px;">
-        <span>${gR2} <span style="color:var(--text-faint);font-size:10px;">${gThru}</span></span>
+        <span class="score-cell ${gTP.cls}">${gTP.display}</span>
         <span style="color:var(--text-faint)">vs</span>
-        <span>${oR2} <span style="color:var(--text-faint);font-size:10px;">${oThru}</span></span>
+        <span class="score-cell ${oTP.cls}">${oTP.display}</span>
       </div>
     </div>`;
   }).join('');
