@@ -475,85 +475,6 @@
     }
 
     /* Tee Time Schedule */
-    .tee-schedule {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .tee-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-    }
-    .tee-time {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--gold-accent);
-      white-space: nowrap;
-      min-width: 80px;
-    }
-    .tee-player {
-      font-weight: 600;
-      color: var(--text);
-      font-size: 14px;
-    }
-    .tee-group {
-      font-size: 12px;
-      color: var(--text-faint);
-    }
-
-    /* Update Panel */
-    .update-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 24px;
-    }
-    .update-panel h3 {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: var(--text);
-    }
-    .update-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: flex-end;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .form-group label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-faint);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .form-group select, .form-group input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface-2);
-      color: var(--text);
-      font-size: 13px;
-      font-family: var(--font-body);
-      min-width: 160px;
-    }
-    .form-group input[type="number"] {
-      width: 80px;
-      min-width: 80px;
-      font-family: var(--font-mono);
-    }
     .btn {
       padding: 8px 18px;
       border-radius: var(--radius-sm);
@@ -731,9 +652,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="bets">All Bets</button>
     <button class="tab" data-tab="golfers">By Golfer</button>
-    <button class="tab" data-tab="teetimes">Live Status</button>
     <button class="tab" data-tab="leaderboard">Leaderboard</button>
-    <button class="tab" data-tab="update">Update Scores</button>
   </div>
 
   <!-- Tab: All Bets -->
@@ -1022,20 +941,6 @@
   </div>
 
   <!-- Tab: Tee Times -->
-  <div class="tab-content" id="tab-teetimes">
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">
-          Live Golfer Status
-          <span class="section-badge">Sorted by position</span>
-        </div>
-      </div>
-      <div class="tee-schedule" id="teeSchedule">
-      </div>
-      <div class="refresh-note">Live data from ESPN. Auto-refreshes every 60 seconds.</div>
-    </div>
-  </div>
-
   <!-- Tab: Leaderboard -->
   <div class="tab-content" id="tab-leaderboard">
     <div class="section">
@@ -1069,65 +974,6 @@
     </div>
   </div>
 
-  <!-- Tab: Update Scores -->
-  <div class="tab-content" id="tab-update">
-    <div class="update-panel">
-      <h3>Update Golfer Scores</h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-        Manually enter tournament positions and round scores to track your bets live. Changes persist in this session.
-      </p>
-      <div class="update-form">
-        <div class="form-group">
-          <label>Golfer</label>
-          <select id="updateGolfer"></select>
-        </div>
-        <div class="form-group">
-          <label>Position</label>
-          <input type="number" id="updatePos" min="1" max="99" placeholder="T14">
-        </div>
-        <div class="form-group">
-          <label>To Par</label>
-          <input type="number" id="updateScore" min="-20" max="20" placeholder="-3">
-        </div>
-        <div class="form-group">
-          <label>R1 Strokes</label>
-          <input type="number" id="updateR1" min="60" max="90" placeholder="71">
-        </div>
-        <div class="form-group">
-          <label>Cut?</label>
-          <select id="updateCut">
-            <option value="no">No</option>
-            <option value="yes">Missed Cut</option>
-          </select>
-        </div>
-        <button class="btn btn-primary" onclick="applyUpdate()">Update</button>
-        <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
-      </div>
-    </div>
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Quick Status Overview</div>
-      </div>
-      <div class="bet-table-wrap">
-        <div class="table-overflow">
-          <table class="bet-table">
-            <thead>
-              <tr>
-                <th>Golfer</th>
-                <th class="center">Pos</th>
-                <th class="center">To Par</th>
-                <th class="center">R1</th>
-                <th class="center">Thru</th>
-                <th class="center">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="statusBody">
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
 </main>
 
 <script>
@@ -1804,52 +1650,6 @@ function renderGolferCards() {
   }).join('');
 }
 
-function renderTeeTimes() {
-  const schedule = document.getElementById('teeSchedule');
-  const sorted = Object.entries(golfers).sort((a, b) => {
-    // Sort by position (any player who has played at least 1 hole total)
-    const aPlayed = (a[1].r1Thru || 0) + (a[1].r2Thru || 0);
-    const bPlayed = (b[1].r1Thru || 0) + (b[1].r2Thru || 0);
-    if (aPlayed > 0 && bPlayed === 0) return -1;
-    if (aPlayed === 0 && bPlayed > 0) return 1;
-    if (aPlayed > 0 && bPlayed > 0) return (a[1].pos || 99) - (b[1].pos || 99);
-    return 0;
-  });
-
-  schedule.innerHTML = sorted.map(([name, g]) => {
-    const betCount = bets.filter(b => b.golfer === name).length;
-    const curRd = currentRound >= 2 ? 'R2' : 'R1';
-    const curRdThru = g.thru; // Already set to current round's thru
-    const statusText = curRdThru === 0 ? `${curRd} — Not started` : curRdThru >= 18 ? `${curRd} complete` : `${curRd} • Thru ${curRdThru}`;
-    const totalPlayed = (g.r1Thru || 0) + (g.r2Thru || 0);
-    const scoreText = totalPlayed > 0 ? formatScore(g.toPar, totalPlayed) : '';
-    return `<div class="tee-row">
-      <div class="tee-time" style="min-width:50px;">${totalPlayed > 0 ? (g.displayPos || g.pos) : '—'}</div>
-      <div style="flex:1">
-        <div class="tee-player">${name} ${scoreText ? '<span class="score-cell ' + scoreClass(g.toPar, totalPlayed) + '" style="margin-left:8px">' + scoreText + '</span>' : ''}</div>
-        <div class="tee-group">${statusText}</div>
-      </div>
-      <span class="section-badge">${betCount} bet${betCount > 1 ? 's' : ''}</span>
-    </div>`;
-  }).join('');
-}
-
-function renderStatusTable() {
-  const tbody = document.getElementById('statusBody');
-  tbody.innerHTML = Object.entries(golfers).map(([name, g]) => {
-    return `<tr>
-      <td><span class="golfer-name">${name}</span></td>
-      <td class="center"><span class="pos-cell">${g.cut ? 'CUT' : formatPos(g)}</span></td>
-      <td class="center"><span class="score-cell ${scoreClass(g.toPar, (g.r1Thru||0)+(g.r2Thru||0))}">${formatScore(g.toPar, (g.r1Thru||0)+(g.r2Thru||0))}</span></td>
-      <td class="center"><span class="score-cell">${g.r1Strokes !== null ? g.r1Strokes : '—'}</span></td>
-      <td class="center"><span class="score-cell">${formatThru(g.thru)}</span></td>
-      <td class="center">
-        <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;" onclick="quickEdit('${name}')">Edit</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
 function renderKPIs() {
   let pnl = 0;
   let settled = 0;
@@ -2234,58 +2034,8 @@ function renderAll() {
   renderR2Under();
   renderRoundRobin();
   renderGolferCards();
-  renderTeeTimes();
   renderLeaderboard();
-  renderStatusTable();
   renderKPIs();
-}
-
-// === UPDATE SYSTEM ===
-function populateGolferSelect() {
-  const sel = document.getElementById('updateGolfer');
-  sel.innerHTML = Object.keys(golfers).map(name => 
-    `<option value="${name}">${name}</option>`
-  ).join('');
-}
-
-function quickEdit(name) {
-  document.getElementById('updateGolfer').value = name;
-  const g = golfers[name];
-  document.getElementById('updatePos').value = g.pos || '';
-  document.getElementById('updateScore').value = g.toPar !== null ? g.toPar : '';
-  document.getElementById('updateR1').value = g.r1 || '';
-  document.getElementById('updateCut').value = g.cut ? 'yes' : 'no';
-  // Switch to update tab
-  switchTab('update');
-}
-
-function applyUpdate() {
-  const name = document.getElementById('updateGolfer').value;
-  const pos = document.getElementById('updatePos').value;
-  const score = document.getElementById('updateScore').value;
-  const r1 = document.getElementById('updateR1').value;
-  const cut = document.getElementById('updateCut').value;
-
-  if (name && golfers[name]) {
-    if (pos !== '') golfers[name].pos = parseInt(pos);
-    if (score !== '') golfers[name].toPar = parseInt(score);
-    if (r1 !== '') golfers[name].r1 = parseInt(r1);
-    golfers[name].cut = cut === 'yes';
-    if (cut === 'yes') {
-      golfers[name].pos = 99; // Force out of contention
-    }
-    renderAll();
-  }
-}
-
-function resetAll() {
-  Object.values(golfers).forEach(g => {
-    g.pos = null;
-    g.toPar = null;
-    g.r1 = null;
-    g.cut = false;
-  });
-  renderAll();
 }
 
 // === TABS ===
@@ -2316,7 +2066,6 @@ document.querySelectorAll('.tab').forEach(tab => {
 })();
 
 // === INIT ===
-populateGolferSelect();
 startAutoRefresh();
 </script>
 
