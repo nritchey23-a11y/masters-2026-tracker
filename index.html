@@ -1613,7 +1613,7 @@ function renderGolferCards() {
     golferBets[b.golfer].push(b);
   });
 
-  grid.innerHTML = Object.entries(golferBets).map(([name, playerBets]) => {
+  grid.innerHTML = Object.entries(golferBets).sort((a, b) => b[1].reduce((s, bet) => s + bet.risk, 0) - a[1].reduce((s, bet) => s + bet.risk, 0)).map(([name, playerBets]) => {
     const g = golfers[name];
     const totalRisk = playerBets.reduce((s, b) => s + b.risk, 0);
     const totalToWin = playerBets.reduce((s, b) => s + b.toWin, 0);
