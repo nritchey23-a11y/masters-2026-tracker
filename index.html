@@ -1853,6 +1853,7 @@ function renderKPIs() {
   let pnl = 0;
   let settled = 0;
   let wins = 0;
+  let pushes = 0;
   let settledRisk = 0;
   let projPnl = 0;
   const totalRisked = bets.reduce((s, b) => s + b.risk, 0) + rrParlays.length * RR_BET_SIZE;
@@ -1870,6 +1871,10 @@ function renderKPIs() {
       settled++;
       settledRisk += b.risk;
     }
+    if (status === 'push') {
+      settled++;
+      pushes++;
+    }
     if (status === 'won' || status === 'winning') {
       projPnl += b.toWin;
     } else if (status === 'lost' || status === 'losing') {
@@ -1882,6 +1887,7 @@ function renderKPIs() {
     const status = getRRParlayStatus(p);
     if (status === 'won') { pnl += p.profit; settled++; wins++; settledRisk += RR_BET_SIZE; }
     if (status === 'lost') { pnl -= RR_BET_SIZE; settled++; settledRisk += RR_BET_SIZE; }
+    if (status === 'push') { settled++; pushes++; }
     if (status === 'won' || status === 'winning') { projPnl += p.profit; }
     else if (status === 'lost' || status === 'losing') { projPnl -= RR_BET_SIZE; }
   });
@@ -1899,9 +1905,12 @@ function renderKPIs() {
     pnlEl.textContent = (pnl >= 0 ? '+' : '-') + formatMoney(pnl);
     pnlEl.className = 'kpi-value ' + (pnl >= 0 ? 'kpi-green' : 'kpi-red');
     pnlSubEl.textContent = `${settled}/${bets.length} settled \u00B7 ROI: ${pnl >= 0 ? '+' : ''}${roi}%`;
-    wrEl.textContent = Math.round((wins / settled) * 100) + '%';
-    wrEl.className = 'kpi-value ' + (wins / settled >= 0.5 ? 'kpi-green' : 'kpi-red');
-    wrSubEl.textContent = `${wins}W - ${settled - wins}L`;
+    const losses = settled - wins - pushes;
+    const decisioned = wins + losses;
+    const winPct = decisioned > 0 ? Math.round((wins / decisioned) * 100) : 0;
+    wrEl.textContent = winPct + '%';
+    wrEl.className = 'kpi-value ' + (decisioned > 0 && wins / decisioned >= 0.5 ? 'kpi-green' : 'kpi-red');
+    wrSubEl.textContent = `${wins}W - ${losses}L` + (pushes > 0 ? ` - ${pushes}P` : '');
   } else {
     pnlEl.textContent = '$0';
     pnlEl.style.color = 'var(--text-muted)';
