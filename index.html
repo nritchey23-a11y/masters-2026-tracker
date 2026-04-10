@@ -1657,28 +1657,19 @@ function renderGolferCards() {
         </div>`;
       }).join('');
 
+      const oppLast = rr.pick.opponent.split(' ').pop();
       rrHtml = `
         <div style="border-top:1px solid var(--border);margin-top:4px;padding-top:8px;">
           <div class="golfer-bet-row" style="cursor:pointer;" onclick="document.getElementById('${rrCardId}').style.display = document.getElementById('${rrCardId}').style.display === 'none' ? 'block' : 'none'">
             <span class="golfer-bet-type">
-              <span style="color:var(--gold-accent);font-weight:700;font-size:11px;">R2 ROUND ROBIN</span>
-              <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">vs ${rr.pick.opponent} <span class="odds ${rr.pick.odds > 0 ? 'plus' : 'minus'}" style="font-size:11px">${oddsStr}</span></span>
+              <span style="color:var(--gold-accent);font-weight:700;font-size:11px;">Round Robin</span>
+              <span style="font-size:11px;color:var(--text-faint);margin-left:6px;"><span style="color:var(--green-accent);">${rr.alive} alive</span>${rr.dead > 0 ? ' <span style="color:var(--red-accent);">' + rr.dead + ' dead</span>' : ''} of ${rr.parlays.length}</span>
             </span>
-            <span class="golfer-bet-payout" style="display:flex;align-items:center;gap:6px;">
-              <span class="status-chip ${lsCls}" style="font-size:10px;padding:2px 6px;">${lsLabel}</span>
-            </span>
+            <span style="font-size:10px;color:var(--text-faint);cursor:pointer;">\u25BC</span>
           </div>
           <div class="golfer-bet-row">
-            <span style="font-size:11px;color:var(--text-muted);">
-              <span class="score-cell ${gTP.cls}" style="font-size:12px;">${gTP.display}</span>
-              <span style="color:var(--text-faint);margin:0 4px;">vs</span>
-              <span class="score-cell ${oTP.cls}" style="font-size:12px;">${oTP.display}</span>
-            </span>
-            <span style="font-size:11px;color:var(--text-muted);">
-              <span style="color:var(--green-accent);">${rr.alive} alive</span>
-              ${rr.dead > 0 ? '<span style="color:var(--red-accent);margin-left:4px;">' + rr.dead + ' dead</span>' : ''}
-              <span style="color:var(--text-faint);margin-left:4px;">of ${rr.parlays.length}</span>
-            </span>
+            <span style="font-size:12px;color:var(--text-muted);">vs ${oppLast} <span class="score-cell ${oTP.cls}" style="font-size:12px;margin-left:4px;">${oTP.display}</span></span>
+            <span class="status-chip ${lsCls}" style="font-size:10px;padding:2px 6px;">${lsLabel}</span>
           </div>
           <div id="${rrCardId}" style="display:none;margin-top:6px;padding:6px 8px;background:var(--surface);border-radius:var(--radius-sm);max-height:180px;overflow-y:auto;">
             ${parlayRows}
