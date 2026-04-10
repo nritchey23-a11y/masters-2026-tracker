@@ -1,0 +1,2278 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masters 2026 — Bet Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --masters-green: #006747;
+      --masters-green-light: #0a8a60;
+      --masters-green-dark: #004d35;
+      --masters-gold: #d4af37;
+      --masters-gold-dim: #b8942d;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0c1210;
+      --surface: #131f1a;
+      --surface-2: #182822;
+      --surface-3: #1e342c;
+      --border: #2a4038;
+      --text: #e8efe9;
+      --text-muted: #8fa89a;
+      --text-faint: #5a7568;
+      --green-accent: #2dd4a0;
+      --red-accent: #f87171;
+      --gold-accent: #fbbf24;
+      --blue-accent: #60a5fa;
+    }
+
+    [data-theme="light"] {
+      --bg: #f0f5f2;
+      --surface: #ffffff;
+      --surface-2: #f7faf8;
+      --surface-3: #edf3ef;
+      --border: #c8d8cf;
+      --text: #1a2e24;
+      --text-muted: #5a7568;
+      --text-faint: #8fa89a;
+      --green-accent: #006747;
+      --red-accent: #dc2626;
+      --gold-accent: #b8942d;
+      --blue-accent: #2563eb;
+    }
+
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100dvh;
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--masters-green-dark), var(--masters-green), var(--masters-green-light));
+      padding: 20px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid var(--masters-gold);
+    }
+    .header-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .header h1 span {
+      color: var(--masters-gold);
+      font-weight: 600;
+    }
+    .header-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.15);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fbbf24;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .theme-toggle {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 180ms ease;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+
+    /* Main */
+    .main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .kpi-green { color: var(--green-accent); }
+    .kpi-red { color: var(--red-accent); }
+    .kpi-gold { color: var(--gold-accent); }
+    .kpi-blue { color: var(--blue-accent); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      white-space: nowrap;
+      transition: all 180ms ease;
+    }
+    .tab:hover { color: var(--text); background: var(--surface-2); }
+    .tab.active {
+      color: #fff;
+      background: var(--masters-green);
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 24px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: var(--surface-3);
+      color: var(--text-muted);
+    }
+
+    /* Bet Table */
+    .bet-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .bet-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .bet-table thead {
+      background: var(--surface-2);
+    }
+    .bet-table th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .bet-table th.right, .bet-table td.right { text-align: right; }
+    .bet-table th.center, .bet-table td.center { text-align: center; }
+    .bet-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .bet-table tbody tr:last-child td { border-bottom: none; }
+    .bet-table tbody tr {
+      transition: background 120ms ease;
+    }
+    .bet-table tbody tr:hover {
+      background: var(--surface-2);
+    }
+
+    .golfer-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .golfer-flag {
+      width: 22px;
+      height: 16px;
+      border-radius: 2px;
+      background: var(--surface-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+    .golfer-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .golfer-tee {
+      font-size: 11px;
+      color: var(--text-faint);
+      font-family: var(--font-mono);
+    }
+
+    .odds {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .odds.plus { color: var(--green-accent); }
+    .odds.minus { color: var(--text-muted); }
+
+    .money {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    /* Round Robin collapsible sections */
+    .rr-collapsed .rr-table-body {
+      max-height: 0 !important;
+      opacity: 0;
+      margin: 0;
+    }
+    .rr-collapsed .rr-chevron {
+      transform: rotate(-90deg);
+    }
+    .rr-table-body {
+      max-height: 2000px;
+      opacity: 1;
+    }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .status-pending {
+      background: rgba(251, 191, 36, 0.12);
+      color: var(--gold-accent);
+    }
+    .status-winning {
+      background: rgba(45, 212, 160, 0.12);
+      color: var(--green-accent);
+    }
+    .status-losing {
+      background: rgba(248, 113, 113, 0.12);
+      color: var(--red-accent);
+    }
+    .status-won {
+      background: rgba(45, 212, 160, 0.18);
+      color: var(--green-accent);
+    }
+    .status-lost {
+      background: rgba(248, 113, 113, 0.18);
+      color: var(--red-accent);
+    }
+    .status-push {
+      background: rgba(96, 165, 250, 0.12);
+      color: var(--blue-accent);
+    }
+
+    .score-cell {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .score-under { color: var(--green-accent); }
+    .score-over { color: var(--red-accent); }
+    .score-even { color: var(--text-muted); }
+
+    .pos-cell {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* Golfer Tracker Cards */
+    .golfer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .golfer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      transition: border-color 180ms ease;
+    }
+    .golfer-card:hover {
+      border-color: var(--masters-green);
+    }
+    .golfer-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .golfer-card-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .golfer-card-tee {
+      font-size: 11px;
+      color: var(--text-faint);
+      font-family: var(--font-mono);
+      margin-top: 2px;
+    }
+    .golfer-card-score {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 700;
+      text-align: right;
+      line-height: 1;
+    }
+    .golfer-card-pos {
+      font-size: 11px;
+      color: var(--text-faint);
+      text-align: right;
+      margin-top: 2px;
+    }
+    .golfer-card-bets {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .golfer-bet-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+    }
+    .golfer-bet-type {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .golfer-bet-payout {
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* Tee Time Schedule */
+    .tee-schedule {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tee-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .tee-time {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold-accent);
+      white-space: nowrap;
+      min-width: 80px;
+    }
+    .tee-player {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .tee-group {
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    /* Update Panel */
+    .update-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .update-panel h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .update-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .form-group select, .form-group input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 13px;
+      font-family: var(--font-body);
+      min-width: 160px;
+    }
+    .form-group input[type="number"] {
+      width: 80px;
+      min-width: 80px;
+      font-family: var(--font-mono);
+    }
+    .btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 180ms ease;
+    }
+    .btn-primary {
+      background: var(--masters-green);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--masters-green-light); }
+    .btn-secondary {
+      background: var(--surface-3);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: var(--border); }
+
+    /* Tab content */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 18px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .bet-table { font-size: 12px; }
+      .bet-table th, .bet-table td { padding: 8px 10px; }
+      .golfer-grid { grid-template-columns: 1fr; }
+      .main { padding: 16px 12px 40px; }
+      .hide-mobile { display: none; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Status dot for position tracking */
+    .pos-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .pos-indicator.safe { background: var(--green-accent); }
+    .pos-indicator.danger { background: var(--red-accent); }
+    .pos-indicator.bubble { background: var(--gold-accent); }
+
+    .table-overflow {
+      overflow-x: auto;
+    }
+
+    .lb-tracked {
+      background: rgba(0, 103, 71, 0.12) !important;
+      border-left: 3px solid var(--masters-green);
+    }
+    [data-theme="light"] .lb-tracked {
+      background: rgba(0, 103, 71, 0.08) !important;
+    }
+    .lb-tracked td:first-child { padding-left: 11px; }
+    .lb-pos {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .lb-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .lb-tracked .lb-name {
+      color: var(--green-accent);
+    }
+    .lb-country {
+      font-size: 11px;
+      color: var(--text-faint);
+      margin-left: 6px;
+    }
+    .lb-tag {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: var(--masters-green);
+      color: #fff;
+      margin-left: 8px;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+    }
+
+    .refresh-note {
+      font-size: 11px;
+      color: var(--text-faint);
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <svg class="logo-icon" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="19" stroke="#d4af37" stroke-width="2"/>
+        <path d="M20 8 C20 8 12 16 12 22 C12 26.4 15.6 30 20 30 C24.4 30 28 26.4 28 22 C28 16 20 8 20 8Z" fill="#d4af37" opacity="0.9"/>
+        <path d="M20 10 L20 18" stroke="#006747" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="20" cy="10" r="2" fill="#fff"/>
+      </svg>
+      <div>
+        <h1>Masters 2026 <span>Bet Tracker</span></h1>
+        <div class="header-subtitle">Augusta National &bull; April 9&ndash;12</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge" id="liveBadge">
+        <div class="live-dot"></div>
+        <span id="statusBadge">CONNECTING...</span>
+      </div>
+      <button class="theme-toggle" onclick="fetchLiveScores()" aria-label="Refresh scores" title="Refresh now">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <!-- KPI Summary -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Wagered</div>
+      <div class="kpi-value" style="color: var(--text);">$12,732</div>
+      <div class="kpi-sub">45 bets + 26 RR parlays</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Unsettled Risk</div>
+      <div class="kpi-value" id="kpiUnsettled" style="color: var(--text);">$12,732</div>
+      <div class="kpi-sub" id="kpiUnsettledSub">All bets pending</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Max Payout</div>
+      <div class="kpi-value kpi-green">$23,551</div>
+      <div class="kpi-sub">If all bets win</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Current P&L</div>
+      <div class="kpi-value" id="kpiPnl" style="color: var(--text-muted);">$0</div>
+      <div class="kpi-sub" id="kpiPnlSub">Pending — R1 starts Thu</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Last Updated</div>
+      <div class="kpi-value" id="kpiUpdated" style="color: var(--text-muted); font-size: 18px;">—</div>
+      <div class="kpi-sub" id="kpiUpdatedSub">Auto-refreshes every 60s</div>
+    </div>
+    <div class="kpi-card" id="kpiWinRateCard">
+      <div class="kpi-label">Win Rate</div>
+      <div class="kpi-value" id="kpiWinRate" style="color: var(--text-muted);">—</div>
+      <div class="kpi-sub" id="kpiWinRateSub">0 settled</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Projected P&L</div>
+      <div class="kpi-value" id="kpiProjected" style="color: var(--text-muted);">$0</div>
+      <div class="kpi-sub" id="kpiProjectedSub">Based on current positions</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="bets">All Bets</button>
+    <button class="tab" data-tab="golfers">By Golfer</button>
+    <button class="tab" data-tab="teetimes">Live Status</button>
+    <button class="tab" data-tab="leaderboard">Leaderboard</button>
+    <button class="tab" data-tab="update">Update Scores</button>
+  </div>
+
+  <!-- Tab: All Bets -->
+  <div class="tab-content active" id="tab-bets">
+    <!-- Tournament Matchup -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M8 3H3v5M3 16v5h5M16 21h5v-5"/><path d="M21 3L14 10M3 3l7 7M3 21l7-7M21 21l-7-7"/></svg>
+          Tournament Matchup
+          <span class="section-badge">1 bet &bull; $250 risked</span>
+        </div>
+      </div>
+      <div id="matchupPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Matchup</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">JT Score</th>
+                <th class="center">Morikawa Score</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="matchupBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outright -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/></svg>
+          Outright Winner
+          <span class="section-badge">1 bet &bull; $100 risked</span>
+        </div>
+      </div>
+      <div id="outrightPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th>Bet</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">Position</th>
+                <th class="center">Score</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="outrightBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 10 -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Top 10 Finish
+          <span class="section-badge">6 bets &bull; $675 risked</span>
+        </div>
+      </div>
+      <div id="top10Pnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">Position</th>
+                <th class="center">Score</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="top10Body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 20 -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Top 20 Finish
+          <span class="section-badge">6 bets &bull; $1,712 risked</span>
+        </div>
+      </div>
+      <div id="top20Pnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">Position</th>
+                <th class="center">Score</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="top20Body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1st Round Unders -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Round 1 Score Unders
+          <span class="section-badge">5 bets &bull; $1,536 risked</span>
+        </div>
+      </div>
+      <div id="r1Pnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th>Line</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">To Par</th>
+                <th class="center">Strokes</th>
+                <th class="center">Thru</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r1Body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- R2 Matchups -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M8 3H3v5M3 16v5h5M16 21h5v-5"/><path d="M21 3L14 10M3 3l7 7M3 21l7-7M21 21l-7-7"/></svg>
+          Round 2 Matchups
+          <span class="section-badge">14 bets &bull; $4,385 risked</span>
+        </div>
+      </div>
+      <div id="r2matchupPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Matchup</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">Pick R2</th>
+                <th class="center">Pick To Par</th>
+                <th class="center">Opp R2</th>
+                <th class="center">Opp To Par</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r2matchupBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- R2 3-Balls -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="5" r="3"/></svg>
+          Round 2 3-Balls
+          <span class="section-badge">7 bets &bull; $1,962 risked</span>
+        </div>
+      </div>
+      <div id="r2threeballPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Pick</th>
+                <th>Opponents</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">Pick R2</th>
+                <th class="center">To Par</th>
+                <th class="center">Opp1 R2</th>
+                <th class="center">Opp1 Par</th>
+                <th class="center">Opp2 R2</th>
+                <th class="center">Opp2 Par</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r2threeballBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- R2 Score Unders -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M6 20V4M18 20v-4"/></svg>
+          Round 2 Score Unders
+          <span class="section-badge">5 bets &bull; $1,462 risked</span>
+        </div>
+      </div>
+      <div id="r2underPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th>Line</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">R2 Score</th>
+                <th class="center">To Par</th>
+                <th class="center">R2 Thru</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r2underBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Round Robin -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          R2 Round Robin
+          <span class="section-badge">26 parlays &bull; $650 risked</span>
+        </div>
+      </div>
+      <div id="rrPnl"></div>
+      <!-- Leg status summary -->
+      <div id="rrLegSummary" style="margin:8px 0 12px;"></div>
+      <!-- Scenario card -->
+      <div id="rrScenario" style="margin-bottom:12px;"></div>
+      <!-- Parlay tables by size -->
+      <div id="rrParlayTables"></div>
+    </div>
+  </div>
+
+  <!-- Tab: By Golfer -->
+  <div class="tab-content" id="tab-golfers">
+    <div class="golfer-grid" id="golferGrid">
+    </div>
+  </div>
+
+  <!-- Tab: Tee Times -->
+  <div class="tab-content" id="tab-teetimes">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          Live Golfer Status
+          <span class="section-badge">Sorted by position</span>
+        </div>
+      </div>
+      <div class="tee-schedule" id="teeSchedule">
+      </div>
+      <div class="refresh-note">Live data from ESPN. Auto-refreshes every 60 seconds.</div>
+    </div>
+  </div>
+
+  <!-- Tab: Leaderboard -->
+  <div class="tab-content" id="tab-leaderboard">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+          Masters Leaderboard
+          <span class="section-badge" id="leaderboardCount">Live</span>
+        </div>
+      </div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th class="center" style="width:50px;">Pos</th>
+                <th>Player</th>
+                <th class="center">To Par</th>
+                <th class="center">Thru</th>
+                <th class="center hide-mobile">R1</th>
+                <th class="center hide-mobile">R2</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="refresh-note">Your golfers are highlighted. Live data from ESPN.</div>
+    </div>
+  </div>
+
+  <!-- Tab: Update Scores -->
+  <div class="tab-content" id="tab-update">
+    <div class="update-panel">
+      <h3>Update Golfer Scores</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        Manually enter tournament positions and round scores to track your bets live. Changes persist in this session.
+      </p>
+      <div class="update-form">
+        <div class="form-group">
+          <label>Golfer</label>
+          <select id="updateGolfer"></select>
+        </div>
+        <div class="form-group">
+          <label>Position</label>
+          <input type="number" id="updatePos" min="1" max="99" placeholder="T14">
+        </div>
+        <div class="form-group">
+          <label>To Par</label>
+          <input type="number" id="updateScore" min="-20" max="20" placeholder="-3">
+        </div>
+        <div class="form-group">
+          <label>R1 Strokes</label>
+          <input type="number" id="updateR1" min="60" max="90" placeholder="71">
+        </div>
+        <div class="form-group">
+          <label>Cut?</label>
+          <select id="updateCut">
+            <option value="no">No</option>
+            <option value="yes">Missed Cut</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="applyUpdate()">Update</button>
+        <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Quick Status Overview</div>
+      </div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th class="center">Pos</th>
+                <th class="center">To Par</th>
+                <th class="center">R1</th>
+                <th class="center">Thru</th>
+                <th class="center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="statusBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// === DATA ===
+const ESPN_API = 'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard';
+const REFRESH_INTERVAL = 60000; // 60 seconds
+let refreshTimer = null;
+let lastFetchTime = null;
+let fullLeaderboard = [];
+
+const golfers = {
+  'Jordan Spieth':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Tommy Fleetwood': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Corey Conners':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Justin Rose':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Cameron Young':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Patrick Reed':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Cameron Smith':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sungjae Im':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Patrick Cantlay': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Adam Scott':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Justin Thomas':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Collin Morikawa': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Brooks Koepka':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Min Woo Lee':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Bryson DeChambeau': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Rory McIlroy':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Ludvig Aberg':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Robert MacIntyre': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Tyrrell Hatton':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sam Burns':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Kurt Kitayama':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Scottie Scheffler': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Maverick McNealy':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'J.J. Spaun':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jake Knapp':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Mason Howell':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Kristoffer Reitan': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Casey Jarvis':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Gary Woodland':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sepp Straka':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Ben Griffin':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Harry Hall':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Michael Brennan':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Aaron Rai':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Viktor Hovland':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Shane Lowry':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jason Day':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jacob Bridgeman':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Hideki Matsuyama':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jon Rahm':          { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Nicolai Højgaard':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Haotong Li':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Carlos Ortiz':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sam Stevens':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Michael Kim':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Aldrich Potgieter': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Rasmus Højgaard':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Max Homa':          { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r2Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+};
+
+const bets = [
+  // Outright
+  { id: 1, golfer: 'Jordan Spieth', type: 'outright', label: 'Win Tournament', odds: '+4200', risk: 100, toWin: 4200 },
+  // Top 10
+  { id: 2, golfer: 'Tommy Fleetwood', type: 'top10', label: 'Top 10', odds: '+150', risk: 150, toWin: 225 },
+  { id: 3, golfer: 'Corey Conners', type: 'top10', label: 'Top 10', odds: '+500', risk: 100, toWin: 500 },
+  { id: 4, golfer: 'Jordan Spieth', type: 'top10', label: 'Top 10', odds: '+375', risk: 100, toWin: 375 },
+  { id: 5, golfer: 'Justin Rose', type: 'top10', label: 'Top 10', odds: '+325', risk: 100, toWin: 325 },
+  { id: 6, golfer: 'Cameron Young', type: 'top10', label: 'Top 10', odds: '+225', risk: 125, toWin: 281 },
+  { id: 7, golfer: 'Patrick Reed', type: 'top10', label: 'Top 10', odds: '+325', risk: 100, toWin: 325 },
+  // Top 20
+  { id: 8, golfer: 'Tommy Fleetwood', type: 'top20', label: 'Top 20', odds: '-130', risk: 325, toWin: 250 },
+  { id: 9, golfer: 'Corey Conners', type: 'top20', label: 'Top 20', odds: '+160', risk: 250, toWin: 400 },
+  { id: 10, golfer: 'Jordan Spieth', type: 'top20', label: 'Top 20', odds: '+125', risk: 250, toWin: 312 },
+  { id: 11, golfer: 'Justin Rose', type: 'top20', label: 'Top 20', odds: '-115', risk: 287, toWin: 250 },
+  { id: 12, golfer: 'Cameron Young', type: 'top20', label: 'Top 20', odds: '-140', risk: 350, toWin: 250 },
+  { id: 13, golfer: 'Patrick Reed', type: 'top20', label: 'Top 20', odds: '+110', risk: 250, toWin: 275 },
+  // R1 Unders
+  { id: 14, golfer: 'Cameron Smith', type: 'r1under', label: 'U 72.5', line: 72.5, odds: '-110', risk: 275, toWin: 250 },
+  { id: 15, golfer: 'Sungjae Im', type: 'r1under', label: 'U 72.5', line: 72.5, odds: '-115', risk: 287, toWin: 250 },
+  { id: 16, golfer: 'Patrick Cantlay', type: 'r1under', label: 'U 72.5', line: 72.5, odds: '-145', risk: 362, toWin: 250 },
+  { id: 17, golfer: 'Adam Scott', type: 'r1under', label: 'U 72.5', line: 72.5, odds: '-145', risk: 362, toWin: 250 },
+  { id: 18, golfer: 'Patrick Reed', type: 'r1under', label: 'U 71.5', line: 71.5, odds: '+110', risk: 250, toWin: 275 },
+  // Matchup
+  { id: 19, golfer: 'Justin Thomas', type: 'matchup', label: 'JT > Morikawa', opponent: 'Collin Morikawa', odds: '+115', risk: 250, toWin: 287 },
+  // R2 Matchups
+  { id: 20, golfer: 'Brooks Koepka', type: 'r2matchup', label: 'Koepka > Spieth R2', opponent: 'Jordan Spieth', odds: '+115', risk: 250, toWin: 287 },
+  { id: 21, golfer: 'Justin Rose', type: 'r2matchup', label: 'Rose > M.W. Lee R2', opponent: 'Min Woo Lee', odds: '-130', risk: 325, toWin: 250 },
+  { id: 22, golfer: 'Bryson DeChambeau', type: 'r2matchup', label: 'DeChambeau > McIlroy R2', opponent: 'Rory McIlroy', odds: '+120', risk: 250, toWin: 300 },
+  { id: 23, golfer: 'Ludvig Aberg', type: 'r2matchup', label: 'Aberg > MacIntyre R2', opponent: 'Robert MacIntyre', odds: '-135', risk: 337, toWin: 250 },
+  // R2 3-Balls
+  { id: 24, golfer: 'Tyrrell Hatton', type: 'r2threeball', label: 'Hatton 3-Ball', opponent1: 'Maverick McNealy', opponent2: 'J.J. Spaun', odds: '+175', risk: 250, toWin: 437 },
+  { id: 25, golfer: 'Sam Burns', type: 'r2threeball', label: 'Burns 3-Ball', opponent1: 'Cameron Smith', opponent2: 'Jake Knapp', odds: '+150', risk: 250, toWin: 375 },
+  { id: 26, golfer: 'Rory McIlroy', type: 'r2threeball', label: 'McIlroy 3-Ball', opponent1: 'Cameron Young', opponent2: 'Mason Howell', odds: '-125', risk: 312, toWin: 250 },
+  { id: 27, golfer: 'Kurt Kitayama', type: 'r2threeball', label: 'Kitayama 3-Ball', opponent1: 'Kristoffer Reitan', opponent2: 'Casey Jarvis', odds: '+125', risk: 250, toWin: 312 },
+  { id: 28, golfer: 'Scottie Scheffler', type: 'r2threeball', label: 'Scheffler 3-Ball', opponent1: 'Robert MacIntyre', opponent2: 'Gary Woodland', odds: '-160', risk: 400, toWin: 250 },
+  { id: 29, golfer: 'Justin Thomas', type: 'r2threeball', label: 'JT 3-Ball', opponent1: 'Sepp Straka', opponent2: 'Ben Griffin', odds: '+150', risk: 250, toWin: 375 },
+  { id: 30, golfer: 'Corey Conners', type: 'r2threeball', label: 'Conners 3-Ball', opponent1: 'Harry Hall', opponent2: 'Michael Brennan', odds: '+115', risk: 250, toWin: 287 },
+  // R2 H2H Matchups (additional)
+  { id: 31, golfer: 'Aaron Rai', type: 'r2matchup', label: 'Rai > Hall R2', opponent: 'Harry Hall', odds: '+110', risk: 250, toWin: 275 },
+  { id: 45, golfer: 'Aaron Rai', type: 'r2matchup', label: 'Rai > Hall R2 (2)', opponent: 'Harry Hall', odds: '+110', risk: 250, toWin: 275 },
+  { id: 32, golfer: 'Justin Rose', type: 'r2matchup', label: 'Rose > M.W. Lee R2 (2)', opponent: 'Min Woo Lee', odds: '-130', risk: 162, toWin: 125 },
+  { id: 38, golfer: 'Scottie Scheffler', type: 'r2matchup', label: 'Scheffler > Rahm R2', opponent: 'Jon Rahm', odds: '-160', risk: 400, toWin: 250 },
+  { id: 39, golfer: 'Adam Scott', type: 'r2matchup', label: 'Scott > N. Hojgaard R2', opponent: 'Nicolai Højgaard', odds: '-130', risk: 325, toWin: 250 },
+  { id: 40, golfer: 'Haotong Li', type: 'r2matchup', label: 'Li > Ortiz R2', opponent: 'Carlos Ortiz', odds: '-155', risk: 387, toWin: 250 },
+  { id: 41, golfer: 'Sam Stevens', type: 'r2matchup', label: 'Stevens > M. Kim R2', opponent: 'Michael Kim', odds: '-135', risk: 337, toWin: 250 },
+  { id: 42, golfer: 'Max Homa', type: 'r2matchup', label: 'Homa > Potgieter R2', opponent: 'Aldrich Potgieter', odds: '-180', risk: 450, toWin: 250 },
+  { id: 43, golfer: 'Sam Burns', type: 'r2matchup', label: 'Burns > Knapp R2', opponent: 'Jake Knapp', odds: '-120', risk: 300, toWin: 250 },
+  { id: 44, golfer: 'Kurt Kitayama', type: 'r2matchup', label: 'Kitayama > R. Hojgaard R2', opponent: 'Rasmus Højgaard', odds: '-145', risk: 362, toWin: 250 },
+  // R2 Score Unders
+  { id: 33, golfer: 'Robert MacIntyre', type: 'r2under', label: 'U 72.5', line: 72.5, odds: '-130', risk: 325, toWin: 250 },
+  { id: 34, golfer: 'Patrick Reed', type: 'r2under', label: 'U 72.5', line: 72.5, odds: '-130', risk: 325, toWin: 250 },
+  { id: 35, golfer: 'Jason Day', type: 'r2under', label: 'U 72.5', line: 72.5, odds: '-115', risk: 287, toWin: 250 },
+  { id: 36, golfer: 'Tommy Fleetwood', type: 'r2under', label: 'U 71.5', line: 71.5, odds: '+100', risk: 250, toWin: 250 },
+  { id: 37, golfer: 'Sam Burns', type: 'r2under', label: 'U 72.5', line: 72.5, odds: '-110', risk: 275, toWin: 250 },
+];
+
+// === ROUND ROBIN DATA ===
+const rrPicks = [
+  { name: 'Aaron Rai', opponent: 'Harry Hall', odds: 110, decimalOdds: 2.10 },
+  { name: 'Patrick Reed', opponent: 'Hideki Matsuyama', odds: 110, decimalOdds: 2.10 },
+  { name: 'Patrick Cantlay', opponent: 'Viktor Hovland', odds: 110, decimalOdds: 2.10 },
+  { name: 'Jason Day', opponent: 'Shane Lowry', odds: 100, decimalOdds: 2.00 },
+  { name: 'Corey Conners', opponent: 'Jacob Bridgeman', odds: 125, decimalOdds: 2.25 },
+];
+const RR_BET_SIZE = 25;
+
+function generateRRParlays() {
+  const parlays = [];
+  const n = rrPicks.length;
+  for (let size = 2; size <= n; size++) {
+    const combos = getCombinations(n, size);
+    combos.forEach(combo => {
+      let decOdds = 1;
+      const legs = combo.map(i => {
+        decOdds *= rrPicks[i].decimalOdds;
+        return rrPicks[i];
+      });
+      const payout = +(RR_BET_SIZE * decOdds).toFixed(2);
+      const profit = +(payout - RR_BET_SIZE).toFixed(2);
+      const americanOdds = decOdds >= 2 ? '+' + Math.round((decOdds - 1) * 100) : '-' + Math.round(100 / (decOdds - 1));
+      parlays.push({ legs, size, decOdds, americanOdds, risk: RR_BET_SIZE, payout, profit, indices: combo });
+    });
+  }
+  return parlays;
+}
+
+function getCombinations(n, k) {
+  const result = [];
+  function combo(start, chosen) {
+    if (chosen.length === k) { result.push([...chosen]); return; }
+    for (let i = start; i < n; i++) {
+      chosen.push(i);
+      combo(i + 1, chosen);
+      chosen.pop();
+    }
+  }
+  combo(0, []);
+  return result;
+}
+
+function getRRLegStatus(pick) {
+  const g = golfers[pick.name];
+  const opp = golfers[pick.opponent];
+  if (!g || !opp) return 'pending';
+  if (g.r2Thru === 0 || opp.r2Thru === 0) return 'pending';
+  if (g.r2Thru >= 18 && opp.r2Thru >= 18) {
+    if (g.r2Strokes < opp.r2Strokes) return 'won';
+    if (g.r2Strokes > opp.r2Strokes) return 'lost';
+    return 'push';
+  }
+  if (g.r2Strokes < opp.r2Strokes) return 'winning';
+  if (g.r2Strokes > opp.r2Strokes) return 'losing';
+  return 'push';
+}
+
+function getRRParlayStatus(parlay) {
+  const statuses = parlay.legs.map(getRRLegStatus);
+  if (statuses.some(s => s === 'lost')) return 'lost';
+  if (statuses.every(s => s === 'won')) return 'won';
+  if (statuses.some(s => s === 'push')) {
+    if (statuses.every(s => s === 'won' || s === 'push')) return 'push';
+  }
+  if (statuses.every(s => s === 'won' || s === 'winning')) return 'winning';
+  if (statuses.some(s => s === 'losing')) return 'losing';
+  return 'pending';
+}
+
+const rrParlays = generateRRParlays();
+
+// === ESPN LIVE FETCH ===
+async function fetchLiveScores() {
+  const badge = document.getElementById('statusBadge');
+  try {
+    badge.textContent = 'UPDATING...';
+    const resp = await fetch(ESPN_API);
+    if (!resp.ok) throw new Error('ESPN API error');
+    const data = await resp.json();
+    const event = data.events?.[0];
+    if (!event) throw new Error('No active event');
+    const competitors = event.competitions?.[0]?.competitors || [];
+    const trackedNames = Object.keys(golfers);
+
+    // Detect current round from linescores
+    const maxRounds = Math.max(...competitors.map(c => (c.linescores || []).length), 1);
+    const currentRound = maxRounds; // 1 = R1, 2 = R2, etc.
+
+    // Build raw leaderboard sorted by order
+    const rawBoard = competitors.map(c => {
+      const ls = c.linescores || [];
+      const r1 = ls[0] || {};
+      const r1Holes = r1.linescores || [];
+      const r2 = ls[1] || {};
+      const r2Holes = r2.linescores || [];
+      // Current round thru: use latest round with data
+      const currentThru = r2Holes.length > 0 ? r2Holes.length : r1Holes.length;
+      return {
+        name: c.athlete?.displayName || '?',
+        country: c.athlete?.flag?.alt || '',
+        order: c.order || null,
+        toPar: c.score || 'E',
+        thru: currentThru,
+        r1Thru: r1Holes.length,
+        r2Thru: r2Holes.length,
+        r1Strokes: r1.value || null,
+        r2Strokes: r2.value || null,
+        cut: c.status?.type?.name === 'cut',
+        tracked: trackedNames.includes(c.athlete?.displayName)
+      };
+    }).sort((a, b) => (a.order || 999) - (b.order || 999));
+
+    // Compute tied positions: group by score, assign position = first index+1 in that group
+    const startedPlayers = rawBoard.filter(p => p.thru > 0);
+    const notStarted = rawBoard.filter(p => p.thru === 0);
+    let rank = 1;
+    let i = 0;
+    while (i < startedPlayers.length) {
+      let j = i;
+      while (j < startedPlayers.length && startedPlayers[j].toPar === startedPlayers[i].toPar) {
+        j++;
+      }
+      const tied = (j - i) > 1;
+      for (let k = i; k < j; k++) {
+        startedPlayers[k].pos = rank;
+        startedPlayers[k].displayPos = tied ? 'T' + rank : String(rank);
+      }
+      rank = j + 1;
+      i = j;
+    }
+    notStarted.forEach(p => { p.pos = null; p.displayPos = '\u2014'; });
+    fullLeaderboard = [...startedPlayers, ...notStarted];
+
+    // Build a lookup for display positions
+    const posLookup = {};
+    fullLeaderboard.forEach(p => { posLookup[p.name] = { displayPos: p.displayPos, pos: p.pos }; });
+
+    for (const c of competitors) {
+      const name = c.athlete?.displayName;
+      if (!name || !trackedNames.includes(name)) continue;
+      const g = golfers[name];
+      const ls = c.linescores || [];
+      const r1 = ls[0] || {};
+      const r1Holes = r1.linescores || [];
+      const thru = r1Holes.length;
+      const r1Strokes = r1.value || 0;
+
+      g.pos = posLookup[name]?.pos || null;
+      g.displayPos = posLookup[name]?.displayPos || '\u2014';
+      g.toPar = c.score || 'E';
+      g.toParNum = parseToPar(c.score);
+      g.thru = thru;
+      g.r1Strokes = thru > 0 ? r1Strokes : null;
+      if (thru >= 18) {
+        g.r1 = r1Strokes;
+      }
+      // R2 data
+      const r2 = ls[1] || {};
+      const r2Holes = r2.linescores || [];
+      g.r2Thru = r2Holes.length;
+      g.r2Strokes = r2Holes.length > 0 ? (r2.value || null) : null;
+      if (c.status?.type?.name === 'cut') {
+        g.cut = true;
+      }
+    }
+
+    // Determine tournament status
+    const roundLabels = { 1: 'ROUND 1', 2: 'ROUND 2', 3: 'ROUND 3', 4: 'ROUND 4' };
+    const roundLabel = roundLabels[currentRound] || `ROUND ${currentRound}`;
+    // Active = players in the current round who haven't finished 18 holes
+    const currentRoundIdx = currentRound - 1;
+    const activeGolfers = competitors.filter(c => {
+      const ls = c.linescores || [];
+      const rd = ls[currentRoundIdx] || {};
+      const holes = rd.linescores || [];
+      return holes.length > 0 && holes.length < 18;
+    }).length;
+    const startedGolfers = competitors.filter(c => {
+      const ls = c.linescores || [];
+      const rd = ls[currentRoundIdx] || {};
+      const holes = rd.linescores || [];
+      return holes.length > 0;
+    }).length;
+    // Also check if ANY round has started
+    const anyStarted = competitors.some(c => {
+      const ls = c.linescores || [];
+      return ls.some(rd => (rd.linescores || []).length > 0);
+    });
+
+    if (!anyStarted) {
+      badge.textContent = 'PRE-TOURNAMENT';
+    } else if (startedGolfers === 0 && currentRound > 1) {
+      // Between rounds — previous round done, current not started
+      badge.textContent = `${roundLabels[currentRound - 1] || 'ROUND ' + (currentRound - 1)} COMPLETE`;
+    } else if (activeGolfers > 0) {
+      badge.textContent = `${roundLabel} LIVE`;
+      document.getElementById('liveBadge').querySelector('.live-dot').style.background = '#22c55e';
+    } else if (startedGolfers > 0) {
+      badge.textContent = `${roundLabel} COMPLETE`;
+    } else {
+      badge.textContent = `${roundLabel} — TEE TIMES SET`;
+    }
+
+    lastFetchTime = new Date();
+    renderAll();
+  } catch (err) {
+    console.error('Fetch error:', err);
+    badge.textContent = 'OFFLINE — MANUAL MODE';
+  }
+}
+
+function parseToPar(scoreStr) {
+  if (!scoreStr || scoreStr === '-' || scoreStr === 'E') return 0;
+  return parseInt(scoreStr);
+}
+
+function startAutoRefresh() {
+  fetchLiveScores();
+  refreshTimer = setInterval(fetchLiveScores, REFRESH_INTERVAL);
+}
+
+// === HELPERS ===
+function formatMoney(n) {
+  return '$' + Math.abs(n).toLocaleString();
+}
+
+function getOddsClass(odds) {
+  return odds.startsWith('+') ? 'plus' : 'minus';
+}
+
+function getBetStatus(bet) {
+  const g = golfers[bet.golfer];
+  if (!g || g.thru === 0) return 'pending';
+  
+  if (bet.type === 'outright') {
+    if (g.cut) return 'lost';
+    if (g.pos === 1) return 'winning';
+    return g.pos <= 5 ? 'winning' : 'losing';
+  }
+  if (bet.type === 'top10') {
+    if (g.cut) return 'lost';
+    return g.pos <= 10 ? 'winning' : 'losing';
+  }
+  if (bet.type === 'top20') {
+    if (g.cut) return 'lost';
+    return g.pos <= 20 ? 'winning' : 'losing';
+  }
+  if (bet.type === 'r1under') {
+    if (g.thru === 0) return 'pending';
+    if (g.thru >= 18 && g.r1 !== null) {
+      // R1 complete — settled
+      if (g.r1 < bet.line) return 'won';
+      if (g.r1 > bet.line) return 'lost';
+      return 'push';
+    }
+    // In-progress: project based on current pace
+    if (g.r1Strokes !== null) {
+      const projected = (g.r1Strokes / g.thru) * 18;
+      if (projected < bet.line - 1) return 'winning';
+      if (projected > bet.line + 1) return 'losing';
+    }
+    return 'pending';
+  }
+  if (bet.type === 'matchup') {
+    const opp = golfers[bet.opponent];
+    if (!opp || g.thru === 0 || opp.thru === 0) return 'pending';
+    if (g.cut && !opp.cut) return 'losing';
+    if (!g.cut && opp.cut) return 'winning';
+    if (g.cut && opp.cut) return 'push';
+    if (g.toParNum < opp.toParNum) return 'winning';
+    if (g.toParNum > opp.toParNum) return 'losing';
+    return 'push';
+  }
+  if (bet.type === 'r2matchup') {
+    const opp = golfers[bet.opponent];
+    if (!opp) return 'pending';
+    // Both need R2 holes to evaluate
+    if (g.r2Thru === 0 && opp.r2Thru === 0) return 'pending';
+    // If one hasn't started R2 but the other has, still pending-ish
+    if (g.r2Thru === 0 || opp.r2Thru === 0) return 'pending';
+    // Compare R2 strokes (lower is better) — normalize by holes if different thru counts
+    if (g.r2Thru >= 18 && opp.r2Thru >= 18) {
+      // Both finished R2 — settled
+      if (g.r2Strokes < opp.r2Strokes) return 'won';
+      if (g.r2Strokes > opp.r2Strokes) return 'lost';
+      return 'push';
+    }
+    // In progress — compare strokes at same hole count or raw
+    if (g.r2Strokes < opp.r2Strokes) return 'winning';
+    if (g.r2Strokes > opp.r2Strokes) return 'losing';
+    return 'push';
+  }
+  if (bet.type === 'r2under') {
+    if (g.r2Thru === 0 || g.r2Strokes === null) return 'pending';
+    if (g.r2Thru >= 18) {
+      if (g.r2Strokes < bet.line) return 'won';
+      if (g.r2Strokes > bet.line) return 'lost';
+      return 'push';
+    }
+    const projected = (g.r2Strokes / g.r2Thru) * 18;
+    if (projected < bet.line - 1) return 'winning';
+    if (projected > bet.line + 1) return 'losing';
+    return 'pending';
+  }
+  if (bet.type === 'r2threeball') {
+    const opp1 = golfers[bet.opponent1];
+    const opp2 = golfers[bet.opponent2];
+    if (!opp1 || !opp2) return 'pending';
+    if (g.r2Thru === 0 || g.r2Strokes === null) return 'pending';
+    const gS = g.r2Strokes;
+    const o1S = opp1.r2Thru > 0 ? opp1.r2Strokes : null;
+    const o2S = opp2.r2Thru > 0 ? opp2.r2Strokes : null;
+    if (o1S === null || o2S === null) return 'pending';
+    const allDone = g.r2Thru >= 18 && opp1.r2Thru >= 18 && opp2.r2Thru >= 18;
+    if (allDone) {
+      if (gS < o1S && gS < o2S) return 'won';
+      if (gS <= o1S && gS <= o2S && (gS === o1S || gS === o2S)) return 'push';
+      return 'lost';
+    }
+    if (gS < o1S && gS < o2S) return 'winning';
+    if (gS > o1S || gS > o2S) return 'losing';
+    return 'push';
+  }
+  return 'pending';
+}
+
+function statusLabel(status) {
+  const labels = {
+    pending: '⏳ Pending',
+    winning: '↑ Winning',
+    losing: '↓ Losing',
+    won: '✓ Won',
+    lost: '✗ Lost',
+    push: '↔ Push'
+  };
+  return labels[status] || status;
+}
+
+function formatScore(toPar, thru) {
+  if (thru === 0 || toPar === null || toPar === '-') return '—';
+  if (toPar === 'E' || toPar === 0 || toPar === '0') return 'E';
+  return String(toPar);
+}
+
+function scoreClass(toPar, thru) {
+  if (thru === 0 || toPar === null || toPar === '-') return '';
+  const str = String(toPar);
+  if (str.startsWith('-')) return 'score-under';
+  if (str.startsWith('+')) return 'score-over';
+  return 'score-even';
+}
+
+// Augusta par by hole: 1-18
+const AUGUSTA_PARS = [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4];
+function parThrough(n) {
+  let p = 0;
+  for (let i = 0; i < Math.min(n, 18); i++) p += AUGUSTA_PARS[i];
+  return p;
+}
+function r2ToPar(g) {
+  if (!g || g.r2Thru === 0 || g.r2Strokes === null) return { display: '—', cls: '' };
+  const expectedPar = parThrough(g.r2Thru);
+  const diff = g.r2Strokes - expectedPar;
+  const thruLabel = g.r2Thru >= 18 ? '' : ` (${g.r2Thru})`;
+  let display, cls;
+  if (diff === 0) { display = 'E' + thruLabel; cls = 'score-even'; }
+  else if (diff < 0) { display = diff + thruLabel; cls = 'score-under'; }
+  else { display = '+' + diff + thruLabel; cls = 'score-over'; }
+  return { display, cls };
+}
+
+function formatPos(g) {
+  if (g.thru === 0 || g.pos === null) return '—';
+  return g.displayPos || g.pos;
+}
+
+function formatThru(thru) {
+  if (thru === 0) return '—';
+  if (thru >= 18) return 'F';
+  return thru;
+}
+
+// === RENDER ===
+function calcSectionPnl(type) {
+  const sectionBets = bets.filter(b => b.type === type);
+  let realized = 0, projected = 0, settledRisk = 0;
+  const totalRisk = sectionBets.reduce((s, b) => s + b.risk, 0);
+  sectionBets.forEach(b => {
+    const status = getBetStatus(b);
+    if (status === 'won') { realized += b.toWin; settledRisk += b.risk; }
+    if (status === 'lost') { realized -= b.risk; settledRisk += b.risk; }
+    if (status === 'won' || status === 'winning') { projected += b.toWin; }
+    else if (status === 'lost' || status === 'losing') { projected -= b.risk; }
+  });
+  const projRoi = totalRisk > 0 ? ((projected / totalRisk) * 100).toFixed(1) : '0.0';
+  const realRoi = settledRisk > 0 ? ((realized / settledRisk) * 100).toFixed(1) : null;
+  return { realized, projected, totalRisk, projRoi, realRoi, settledRisk };
+}
+
+function pnlBadgeHtml(type) {
+  const p = calcSectionPnl(type);
+  let parts = [];
+  if (p.settledRisk > 0) {
+    const rColor = p.realized >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+    parts.push(`<span style="color:${rColor};font-family:var(--font-mono);font-weight:600;">${p.realized >= 0 ? '+' : '-'}$${Math.abs(p.realized).toLocaleString()}</span> realized (${p.realized >= 0 ? '+' : ''}${p.realRoi}% ROI)`);
+  }
+  const pColor = p.projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+  parts.push(`<span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${p.projected >= 0 ? '+' : '-'}$${Math.abs(p.projected).toLocaleString()}</span> projected (${p.projected >= 0 ? '+' : ''}${p.projRoi}% ROI)`);
+  return `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${parts.join(' &nbsp;|&nbsp; ')}</div>`;
+}
+
+function renderOutright() {
+  const tbody = document.getElementById('outrightBody');
+  document.getElementById('outrightPnl').innerHTML = pnlBadgeHtml('outright');
+  tbody.innerHTML = bets.filter(b => b.type === 'outright').map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td>${b.label}</td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="pos-cell">${g.cut ? 'CUT' : formatPos(g)}</span></td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, g.thru)}">${formatScore(g.toPar, g.thru)}</span>${g.thru > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTop10() {
+  const tbody = document.getElementById('top10Body');
+  document.getElementById('top10Pnl').innerHTML = pnlBadgeHtml('top10');
+  tbody.innerHTML = bets.filter(b => b.type === 'top10').map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="pos-cell">${g.cut ? 'CUT' : formatPos(g)}</span></td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, g.thru)}">${formatScore(g.toPar, g.thru)}</span>${g.thru > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTop20() {
+  const tbody = document.getElementById('top20Body');
+  document.getElementById('top20Pnl').innerHTML = pnlBadgeHtml('top20');
+  tbody.innerHTML = bets.filter(b => b.type === 'top20').map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="pos-cell">${g.cut ? 'CUT' : formatPos(g)}</span></td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, g.thru)}">${formatScore(g.toPar, g.thru)}</span>${g.thru > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderR1() {
+  const tbody = document.getElementById('r1Body');
+  document.getElementById('r1Pnl').innerHTML = pnlBadgeHtml('r1under');
+  tbody.innerHTML = bets.filter(b => b.type === 'r1under').map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    let strokesDisplay = '—';
+    let strokesClass = '';
+    if (g.thru > 0 && g.r1Strokes !== null) {
+      strokesDisplay = g.r1Strokes;
+      if (g.thru >= 18) {
+        strokesClass = g.r1Strokes < b.line ? 'score-under' : g.r1Strokes > b.line ? 'score-over' : 'score-even';
+      }
+    }
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td>U ${b.line}</td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, g.thru)}">${formatScore(g.toPar, g.thru)}</span></td>
+      <td class="center"><span class="score-cell ${strokesClass}">${strokesDisplay}</span></td>
+      <td class="center"><span class="score-cell">${formatThru(g.thru)}</span></td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderGolferCards() {
+  const grid = document.getElementById('golferGrid');
+  const golferBets = {};
+  bets.forEach(b => {
+    if (!golferBets[b.golfer]) golferBets[b.golfer] = [];
+    golferBets[b.golfer].push(b);
+  });
+
+  grid.innerHTML = Object.entries(golferBets).map(([name, playerBets]) => {
+    const g = golfers[name];
+    const totalRisk = playerBets.reduce((s, b) => s + b.risk, 0);
+    const totalToWin = playerBets.reduce((s, b) => s + b.toWin, 0);
+    const currentRd = g.r2Thru > 0 ? 'R2' : 'R1';
+    const currentRdThru = g.r2Thru > 0 ? g.r2Thru : g.thru;
+    const thruLabel = currentRdThru === 0 ? 'Not started' : currentRdThru >= 18 ? `${currentRd} complete` : `${currentRd} • Thru ${currentRdThru}`;
+    return `<div class="golfer-card">
+      <div class="golfer-card-header">
+        <div>
+          <div class="golfer-card-name">${name}</div>
+          <div class="golfer-card-tee">${thruLabel}</div>
+        </div>
+        <div>
+          <div class="golfer-card-score ${scoreClass(g.toPar, g.thru)}">${g.cut ? 'CUT' : formatScore(g.toPar, g.thru)}</div>
+          <div class="golfer-card-pos">${g.cut ? 'Missed Cut' : (g.thru > 0 ? 'Pos: ' + (g.displayPos || g.pos) : 'Pre-tourney')}</div>
+        </div>
+      </div>
+      <div class="golfer-card-bets">
+        ${playerBets.map(b => {
+          const status = getBetStatus(b);
+          return `<div class="golfer-bet-row">
+            <span class="golfer-bet-type">${b.label} <span class="odds ${getOddsClass(b.odds)}" style="font-size:11px">${b.odds}</span></span>
+            <span class="golfer-bet-payout">
+              <span class="status-chip status-${status}" style="font-size:10px;padding:2px 6px;">${statusLabel(status)}</span>
+            </span>
+          </div>`;
+        }).join('')}
+        <div class="golfer-bet-row" style="background:var(--surface-3);">
+          <span class="golfer-bet-type" style="color:var(--text);">Total Exposure</span>
+          <span class="golfer-bet-payout" style="color:var(--text);">$${totalRisk} risked &bull; $${totalToWin.toLocaleString()} potential</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTeeTimes() {
+  const schedule = document.getElementById('teeSchedule');
+  const sorted = Object.entries(golfers).sort((a, b) => {
+    // Sort: on course first (by pos), then not started
+    if (a[1].thru > 0 && b[1].thru === 0) return -1;
+    if (a[1].thru === 0 && b[1].thru > 0) return 1;
+    if (a[1].thru > 0 && b[1].thru > 0) return (a[1].pos || 99) - (b[1].pos || 99);
+    return 0;
+  });
+
+  schedule.innerHTML = sorted.map(([name, g]) => {
+    const betCount = bets.filter(b => b.golfer === name).length;
+    const curRd = g.r2Thru > 0 ? 'R2' : 'R1';
+    const curRdThru = g.r2Thru > 0 ? g.r2Thru : g.thru;
+    const statusText = curRdThru === 0 ? 'Not started' : curRdThru >= 18 ? `${curRd} complete` : `${curRd} • Thru ${curRdThru}`;
+    const scoreText = g.thru > 0 ? formatScore(g.toPar, g.thru) : '';
+    return `<div class="tee-row">
+      <div class="tee-time" style="min-width:50px;">${g.thru > 0 ? (g.displayPos || g.pos) : '—'}</div>
+      <div style="flex:1">
+        <div class="tee-player">${name} ${scoreText ? '<span class="score-cell ' + scoreClass(g.toPar, g.thru) + '" style="margin-left:8px">' + scoreText + '</span>' : ''}</div>
+        <div class="tee-group">${statusText}</div>
+      </div>
+      <span class="section-badge">${betCount} bet${betCount > 1 ? 's' : ''}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderStatusTable() {
+  const tbody = document.getElementById('statusBody');
+  tbody.innerHTML = Object.entries(golfers).map(([name, g]) => {
+    return `<tr>
+      <td><span class="golfer-name">${name}</span></td>
+      <td class="center"><span class="pos-cell">${g.cut ? 'CUT' : formatPos(g)}</span></td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, g.thru)}">${formatScore(g.toPar, g.thru)}</span></td>
+      <td class="center"><span class="score-cell">${g.r1Strokes !== null ? g.r1Strokes : '—'}</span></td>
+      <td class="center"><span class="score-cell">${formatThru(g.thru)}</span></td>
+      <td class="center">
+        <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;" onclick="quickEdit('${name}')">Edit</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderKPIs() {
+  let pnl = 0;
+  let settled = 0;
+  let wins = 0;
+  let settledRisk = 0;
+  let projPnl = 0;
+  const totalRisked = bets.reduce((s, b) => s + b.risk, 0) + rrParlays.length * RR_BET_SIZE;
+
+  bets.forEach(b => {
+    const status = getBetStatus(b);
+    if (status === 'won') {
+      pnl += b.toWin;
+      settled++;
+      wins++;
+      settledRisk += b.risk;
+    }
+    if (status === 'lost') {
+      pnl -= b.risk;
+      settled++;
+      settledRisk += b.risk;
+    }
+    if (status === 'won' || status === 'winning') {
+      projPnl += b.toWin;
+    } else if (status === 'lost' || status === 'losing') {
+      projPnl -= b.risk;
+    }
+  });
+
+  // Include Round Robin parlays in KPIs
+  rrParlays.forEach(p => {
+    const status = getRRParlayStatus(p);
+    if (status === 'won') { pnl += p.profit; settled++; wins++; settledRisk += RR_BET_SIZE; }
+    if (status === 'lost') { pnl -= RR_BET_SIZE; settled++; settledRisk += RR_BET_SIZE; }
+    if (status === 'won' || status === 'winning') { projPnl += p.profit; }
+    else if (status === 'lost' || status === 'losing') { projPnl -= RR_BET_SIZE; }
+  });
+
+  const pnlEl = document.getElementById('kpiPnl');
+  const pnlSubEl = document.getElementById('kpiPnlSub');
+  const wrEl = document.getElementById('kpiWinRate');
+  const wrSubEl = document.getElementById('kpiWinRateSub');
+  const projEl = document.getElementById('kpiProjected');
+  const projSubEl = document.getElementById('kpiProjectedSub');
+
+  // Current P&L + ROI
+  if (settled > 0) {
+    const roi = settledRisk > 0 ? ((pnl / settledRisk) * 100).toFixed(1) : 0;
+    pnlEl.textContent = (pnl >= 0 ? '+' : '-') + formatMoney(pnl);
+    pnlEl.className = 'kpi-value ' + (pnl >= 0 ? 'kpi-green' : 'kpi-red');
+    pnlSubEl.textContent = `${settled}/${bets.length} settled \u00B7 ROI: ${pnl >= 0 ? '+' : ''}${roi}%`;
+    wrEl.textContent = Math.round((wins / settled) * 100) + '%';
+    wrEl.className = 'kpi-value ' + (wins / settled >= 0.5 ? 'kpi-green' : 'kpi-red');
+    wrSubEl.textContent = `${wins}W - ${settled - wins}L`;
+  } else {
+    pnlEl.textContent = '$0';
+    pnlEl.style.color = 'var(--text-muted)';
+    pnlSubEl.textContent = 'No bets settled yet';
+    wrEl.textContent = '\u2014';
+    wrEl.style.color = 'var(--text-muted)';
+    wrSubEl.textContent = '0 settled';
+  }
+
+  // Unsettled Risk
+  const unsettledRisk = totalRisked - settledRisk;
+  const unsettledCount = (bets.length + rrParlays.length) - settled;
+  const unsettledEl = document.getElementById('kpiUnsettled');
+  const unsettledSubEl = document.getElementById('kpiUnsettledSub');
+  if (unsettledEl) {
+    unsettledEl.textContent = '$' + unsettledRisk.toLocaleString();
+    unsettledEl.className = 'kpi-value' + (unsettledRisk > 0 ? '' : ' kpi-green');
+    unsettledSubEl.textContent = unsettledCount + ' bets still in play';
+  }
+
+  // Projected P&L + ROI
+  const projRoi = totalRisked > 0 ? ((projPnl / totalRisked) * 100).toFixed(1) : 0;
+  projEl.textContent = (projPnl >= 0 ? '+' : '-') + formatMoney(projPnl);
+  projEl.className = 'kpi-value ' + (projPnl >= 0 ? 'kpi-green' : 'kpi-red');
+  projSubEl.textContent = `Proj. ROI: ${projPnl >= 0 ? '+' : ''}${projRoi}% on $${totalRisked.toLocaleString()}`;
+
+  // Last Updated KPI
+  const updEl = document.getElementById('kpiUpdated');
+  const updSubEl = document.getElementById('kpiUpdatedSub');
+  if (lastFetchTime) {
+    updEl.textContent = lastFetchTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    updEl.style.color = 'var(--green-accent)';
+    updSubEl.textContent = 'Auto-refreshes every 60s';
+  }
+}
+
+function renderMatchup() {
+  const tbody = document.getElementById('matchupBody');
+  document.getElementById('matchupPnl').innerHTML = pnlBadgeHtml('matchup');
+  tbody.innerHTML = bets.filter(b => b.type === 'matchup').map(b => {
+    const g = golfers[b.golfer];
+    const opp = golfers[b.opponent];
+    const status = getBetStatus(b);
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span> <span style="color:var(--text-faint);margin:0 4px">vs</span> <span class="golfer-name">${b.opponent}</span></div></td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, g.thru)}">${g.cut ? 'CUT' : formatScore(g.toPar, g.thru)}</span>${g.thru > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="score-cell ${scoreClass(opp.toPar, opp.thru)}">${opp.cut ? 'CUT' : formatScore(opp.toPar, opp.thru)}</span>${opp.thru > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(opp.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderLeaderboard() {
+  const tbody = document.getElementById('leaderboardBody');
+  const badge = document.getElementById('leaderboardCount');
+  if (!fullLeaderboard.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);padding:24px;">Waiting for data...</td></tr>';
+    return;
+  }
+  badge.textContent = fullLeaderboard.length + ' players';
+
+  tbody.innerHTML = fullLeaderboard.map(p => {
+    const isTracked = p.tracked;
+    // Thru = current round progress
+    const activeThru = p.r2Thru > 0 ? p.r2Thru : p.r1Thru;
+    const thruDisplay = activeThru === 0 ? '\u2014' : activeThru >= 18 ? 'F' : activeThru;
+    const r1Display = p.r1Strokes && p.r1Thru > 0 ? p.r1Strokes : '\u2014';
+    const r2Display = p.r2Strokes && p.r2Thru > 0 ? p.r2Strokes : '\u2014';
+    const sc = scoreClass(p.toPar, p.thru);
+
+    return `<tr class="${isTracked ? 'lb-tracked' : ''}">
+      <td class="center"><span class="lb-pos">${p.displayPos}</span></td>
+      <td><span class="lb-name">${p.name}</span>${isTracked ? '<span class="lb-tag">MY BET</span>' : ''}</td>
+      <td class="center"><span class="score-cell ${sc}">${formatScore(p.toPar, p.thru)}</span></td>
+      <td class="center"><span class="score-cell">${thruDisplay}</span></td>
+      <td class="center hide-mobile"><span class="score-cell">${r1Display}</span></td>
+      <td class="center hide-mobile"><span class="score-cell">${r2Display}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderR2Matchup() {
+  const tbody = document.getElementById('r2matchupBody');
+  document.getElementById('r2matchupPnl').innerHTML = pnlBadgeHtml('r2matchup');
+  tbody.innerHTML = bets.filter(b => b.type === 'r2matchup').map(b => {
+    const g = golfers[b.golfer];
+    const opp = golfers[b.opponent];
+    const status = getBetStatus(b);
+    const gR2 = g.r2Thru > 0 ? g.r2Strokes + '' : '\u2014';
+    const oR2 = opp.r2Thru > 0 ? opp.r2Strokes + '' : '\u2014';
+    const gThru = g.r2Thru > 0 ? (g.r2Thru >= 18 ? ' (F)' : ' (' + g.r2Thru + ')') : '';
+    const oThru = opp.r2Thru > 0 ? (opp.r2Thru >= 18 ? ' (F)' : ' (' + opp.r2Thru + ')') : '';
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span> <span style="color:var(--text-faint);margin:0 4px">vs</span> <span class="golfer-name">${b.opponent}</span></div></td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell">${gR2}</span><span style="font-size:10px;color:var(--text-faint)">${gThru}</span></td>
+      <td class="center"><span class="score-cell ${r2ToPar(g).cls}">${r2ToPar(g).display}</span></td>
+      <td class="center"><span class="score-cell">${oR2}</span><span style="font-size:10px;color:var(--text-faint)">${oThru}</span></td>
+      <td class="center"><span class="score-cell ${r2ToPar(opp).cls}">${r2ToPar(opp).display}</span></td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderR2ThreeBall() {
+  const tbody = document.getElementById('r2threeballBody');
+  document.getElementById('r2threeballPnl').innerHTML = pnlBadgeHtml('r2threeball');
+  tbody.innerHTML = bets.filter(b => b.type === 'r2threeball').map(b => {
+    const g = golfers[b.golfer];
+    const opp1 = golfers[b.opponent1];
+    const opp2 = golfers[b.opponent2];
+    const status = getBetStatus(b);
+    const gR2 = g.r2Thru > 0 ? g.r2Strokes + '' : '\u2014';
+    const o1R2 = opp1 && opp1.r2Thru > 0 ? opp1.r2Strokes + '' : '\u2014';
+    const o2R2 = opp2 && opp2.r2Thru > 0 ? opp2.r2Strokes + '' : '\u2014';
+    const gThru = g.r2Thru > 0 ? (g.r2Thru >= 18 ? ' (F)' : ' (' + g.r2Thru + ')') : '';
+    const o1Thru = opp1 && opp1.r2Thru > 0 ? (opp1.r2Thru >= 18 ? ' (F)' : ' (' + opp1.r2Thru + ')') : '';
+    const o2Thru = opp2 && opp2.r2Thru > 0 ? (opp2.r2Thru >= 18 ? ' (F)' : ' (' + opp2.r2Thru + ')') : '';
+    const o1Name = b.opponent1.split(' ').pop();
+    const o2Name = b.opponent2.split(' ').pop();
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td><span style="color:var(--text-muted);font-size:13px">${o1Name}, ${o2Name}</span></td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell">${gR2}</span><span style="font-size:10px;color:var(--text-faint)">${gThru}</span></td>
+      <td class="center"><span class="score-cell ${r2ToPar(g).cls}">${r2ToPar(g).display}</span></td>
+      <td class="center"><span class="score-cell">${o1R2}</span><span style="font-size:10px;color:var(--text-faint)">${o1Thru}</span></td>
+      <td class="center"><span class="score-cell ${r2ToPar(opp1).cls}">${r2ToPar(opp1).display}</span></td>
+      <td class="center"><span class="score-cell">${o2R2}</span><span style="font-size:10px;color:var(--text-faint)">${o2Thru}</span></td>
+      <td class="center"><span class="score-cell ${r2ToPar(opp2).cls}">${r2ToPar(opp2).display}</span></td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderR2Under() {
+  const tbody = document.getElementById('r2underBody');
+  document.getElementById('r2underPnl').innerHTML = pnlBadgeHtml('r2under');
+  tbody.innerHTML = bets.filter(b => b.type === 'r2under').map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    let r2Display = '\u2014';
+    let r2Class = '';
+    if (g.r2Thru > 0 && g.r2Strokes !== null) {
+      r2Display = g.r2Strokes;
+      if (g.r2Thru >= 18) {
+        r2Class = g.r2Strokes < b.line ? 'score-under' : g.r2Strokes > b.line ? 'score-over' : 'score-even';
+      }
+    }
+    const thruDisplay = g.r2Thru === 0 ? '\u2014' : g.r2Thru >= 18 ? 'F' : g.r2Thru;
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td>U ${b.line}</td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell ${r2Class}">${r2Display}</span></td>
+      <td class="center"><span class="score-cell ${r2ToPar(g).cls}">${r2ToPar(g).display}</span></td>
+      <td class="center"><span class="score-cell">${thruDisplay}</span></td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRoundRobin() {
+  // Leg summary
+  const legSummary = document.getElementById('rrLegSummary');
+  const legRows = rrPicks.map(p => {
+    const status = getRRLegStatus(p);
+    const g = golfers[p.name];
+    const opp = golfers[p.opponent];
+    const gR2 = g && g.r2Thru > 0 ? g.r2Strokes : '\u2014';
+    const oR2 = opp && opp.r2Thru > 0 ? opp.r2Strokes : '\u2014';
+    const gThru = g && g.r2Thru > 0 ? (g.r2Thru >= 18 ? 'F' : g.r2Thru + 'H') : '';
+    const oThru = opp && opp.r2Thru > 0 ? (opp.r2Thru >= 18 ? 'F' : opp.r2Thru + 'H') : '';
+    const oddsStr = p.odds > 0 ? '+' + p.odds : String(p.odds);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:4px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="status-chip status-${status}" style="font-size:10px;padding:2px 8px;min-width:72px;text-align:center;">${statusLabel(status)}</span>
+        <span style="font-weight:600;">${p.name}</span>
+        <span class="odds ${p.odds > 0 ? 'plus' : 'minus'}" style="font-size:12px;">${oddsStr}</span>
+        <span style="color:var(--text-faint);font-size:12px;">vs ${p.opponent}</span>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:13px;display:flex;gap:16px;">
+        <span>${gR2} <span style="color:var(--text-faint);font-size:10px;">${gThru}</span></span>
+        <span style="color:var(--text-faint)">vs</span>
+        <span>${oR2} <span style="color:var(--text-faint);font-size:10px;">${oThru}</span></span>
+      </div>
+    </div>`;
+  }).join('');
+  legSummary.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">5 Picks — R2 H2H Matchups</div>${legRows}`;
+
+  // Calculate RR P&L
+  let rrRealized = 0, rrProjected = 0, rrSettledRisk = 0;
+  const totalRRRisk = rrParlays.length * RR_BET_SIZE;
+  rrParlays.forEach(p => {
+    const status = getRRParlayStatus(p);
+    if (status === 'won') { rrRealized += p.profit; rrSettledRisk += RR_BET_SIZE; }
+    if (status === 'lost') { rrRealized -= RR_BET_SIZE; rrSettledRisk += RR_BET_SIZE; }
+    if (status === 'won' || status === 'winning') { rrProjected += p.profit; }
+    else if (status === 'lost' || status === 'losing') { rrProjected -= RR_BET_SIZE; }
+  });
+  const rrProjRoi = totalRRRisk > 0 ? ((rrProjected / totalRRRisk) * 100).toFixed(1) : '0.0';
+  const rrRealRoi = rrSettledRisk > 0 ? ((rrRealized / rrSettledRisk) * 100).toFixed(1) : null;
+  let rrPnlParts = [];
+  if (rrSettledRisk > 0) {
+    const rColor = rrRealized >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+    rrPnlParts.push(`<span style="color:${rColor};font-family:var(--font-mono);font-weight:600;">${rrRealized >= 0 ? '+' : '-'}$${Math.abs(rrRealized).toLocaleString()}</span> realized (${rrRealized >= 0 ? '+' : ''}${rrRealRoi}% ROI)`);
+  }
+  const pColor = rrProjected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+  rrPnlParts.push(`<span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${rrProjected >= 0 ? '+' : '-'}$${Math.abs(rrProjected).toLocaleString()}</span> projected (${rrProjected >= 0 ? '+' : ''}${rrProjRoi}% ROI)`);
+  document.getElementById('rrPnl').innerHTML = `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${rrPnlParts.join(' &nbsp;|&nbsp; ')}</div>`;
+
+  // Scenario card
+  const winsCount = rrPicks.filter(p => { const s = getRRLegStatus(p); return s === 'won' || s === 'winning'; }).length;
+  const lossCount = rrPicks.filter(p => { const s = getRRLegStatus(p); return s === 'lost' || s === 'losing'; }).length;
+  const pendingCount = rrPicks.length - winsCount - lossCount;
+  const scenarios = document.getElementById('rrScenario');
+  const wonParlays = rrParlays.filter(p => getRRParlayStatus(p) === 'won' || getRRParlayStatus(p) === 'winning').length;
+  const lostParlays = rrParlays.filter(p => getRRParlayStatus(p) === 'lost' || getRRParlayStatus(p) === 'losing').length;
+  const pendingParlays = rrParlays.length - wonParlays - lostParlays;
+  const totalMaxPayout = rrParlays.reduce((s, p) => s + p.payout, 0);
+
+  scenarios.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;">
+    <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;">
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Legs</div>
+      <div style="font-size:18px;font-weight:700;font-family:var(--font-mono);color:var(--green-accent);">${winsCount}W</div>
+      <div style="font-size:11px;color:var(--text-faint);">${lossCount}L · ${pendingCount}P</div>
+    </div>
+    <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;">
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Parlays Alive</div>
+      <div style="font-size:18px;font-weight:700;font-family:var(--font-mono);color:var(--green-accent);">${wonParlays + pendingParlays}</div>
+      <div style="font-size:11px;color:var(--text-faint);">${lostParlays} dead</div>
+    </div>
+    <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;">
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Total Risked</div>
+      <div style="font-size:18px;font-weight:700;font-family:var(--font-mono);">$650</div>
+      <div style="font-size:11px;color:var(--text-faint);">26 parlays</div>
+    </div>
+    <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;">
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Max Payout</div>
+      <div style="font-size:18px;font-weight:700;font-family:var(--font-mono);color:var(--gold-accent);">$${totalMaxPayout.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}</div>
+      <div style="font-size:11px;color:var(--text-faint);">if all 5 hit</div>
+    </div>
+  </div>`;
+
+  // Parlay tables grouped by size
+  const sizes = [2, 3, 4, 5];
+  const sizeLabels = { 2: '2-Leg Parlays (10)', 3: '3-Leg Parlays (10)', 4: '4-Leg Parlays (5)', 5: '5-Leg Parlay (1)' };
+  const tablesHtml = sizes.map(size => {
+    const group = rrParlays.filter(p => p.size === size);
+    const rows = group.map(p => {
+      const status = getRRParlayStatus(p);
+      const legNames = p.legs.map(l => l.name.split(' ').pop()).join(' + ');
+      return `<tr>
+        <td style="font-size:13px;">${legNames}</td>
+        <td class="right"><span class="odds ${p.americanOdds.startsWith('+') ? 'plus' : 'minus'}" style="font-size:12px;">${p.americanOdds}</span></td>
+        <td class="right" style="font-family:var(--font-mono);font-size:12px;">$${p.risk}</td>
+        <td class="right" style="font-family:var(--font-mono);font-size:12px;">$${p.payout.toFixed(2)}</td>
+        <td class="center"><span class="status-chip status-${status}" style="font-size:10px;padding:2px 6px;">${statusLabel(status)}</span></td>
+      </tr>`;
+    }).join('');
+    const alive = group.filter(p => { const s = getRRParlayStatus(p); return s !== 'lost'; }).length;
+    const dead = group.length - alive;
+    const summaryParts = [];
+    if (alive > 0) summaryParts.push(`<span style="color:var(--green-accent);">${alive} alive</span>`);
+    if (dead > 0) summaryParts.push(`<span style="color:var(--red-accent);">${dead} dead</span>`);
+    const summary = summaryParts.join(' · ');
+    return `<div style="margin-bottom:12px;">
+      <div onclick="this.parentElement.classList.toggle('rr-collapsed')" style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;padding:6px 0;">
+        <svg class="rr-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform 0.2s ease;flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
+        ${sizeLabels[size]}
+        <span style="font-size:11px;font-weight:400;letter-spacing:0;text-transform:none;margin-left:auto;">${summary}</span>
+      </div>
+      <div class="rr-table-body" style="transition:max-height 0.3s ease, opacity 0.2s ease;overflow:hidden;">
+        <div class="bet-table-wrap"><div class="table-overflow">
+          <table class="bet-table"><thead><tr>
+            <th>Legs</th><th class="right">Odds</th><th class="right">Risk</th><th class="right">Payout</th><th class="center">Status</th>
+          </tr></thead><tbody>${rows}</tbody></table>
+        </div></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('rrParlayTables').innerHTML = tablesHtml;
+  // Default all RR parlay sections to collapsed
+  document.querySelectorAll('#rrParlayTables > div').forEach(el => el.classList.add('rr-collapsed'));
+}
+
+function renderAll() {
+  renderMatchup();
+  renderOutright();
+  renderTop10();
+  renderTop20();
+  renderR1();
+  renderR2Matchup();
+  renderR2ThreeBall();
+  renderR2Under();
+  renderRoundRobin();
+  renderGolferCards();
+  renderTeeTimes();
+  renderLeaderboard();
+  renderStatusTable();
+  renderKPIs();
+}
+
+// === UPDATE SYSTEM ===
+function populateGolferSelect() {
+  const sel = document.getElementById('updateGolfer');
+  sel.innerHTML = Object.keys(golfers).map(name => 
+    `<option value="${name}">${name}</option>`
+  ).join('');
+}
+
+function quickEdit(name) {
+  document.getElementById('updateGolfer').value = name;
+  const g = golfers[name];
+  document.getElementById('updatePos').value = g.pos || '';
+  document.getElementById('updateScore').value = g.toPar !== null ? g.toPar : '';
+  document.getElementById('updateR1').value = g.r1 || '';
+  document.getElementById('updateCut').value = g.cut ? 'yes' : 'no';
+  // Switch to update tab
+  switchTab('update');
+}
+
+function applyUpdate() {
+  const name = document.getElementById('updateGolfer').value;
+  const pos = document.getElementById('updatePos').value;
+  const score = document.getElementById('updateScore').value;
+  const r1 = document.getElementById('updateR1').value;
+  const cut = document.getElementById('updateCut').value;
+
+  if (name && golfers[name]) {
+    if (pos !== '') golfers[name].pos = parseInt(pos);
+    if (score !== '') golfers[name].toPar = parseInt(score);
+    if (r1 !== '') golfers[name].r1 = parseInt(r1);
+    golfers[name].cut = cut === 'yes';
+    if (cut === 'yes') {
+      golfers[name].pos = 99; // Force out of contention
+    }
+    renderAll();
+  }
+}
+
+function resetAll() {
+  Object.values(golfers).forEach(g => {
+    g.pos = null;
+    g.toPar = null;
+    g.r1 = null;
+    g.cut = false;
+  });
+  renderAll();
+}
+
+// === TABS ===
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+  document.getElementById(`tab-${tabId}`).classList.add('active');
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// === THEME ===
+(function() {
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = 'dark'; // default dark for this dashboard
+  r.setAttribute('data-theme', d);
+  t && t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    t.innerHTML = d === 'dark'
+      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  });
+})();
+
+// === INIT ===
+populateGolferSelect();
+startAutoRefresh();
+</script>
+
+</body>
+</html>
