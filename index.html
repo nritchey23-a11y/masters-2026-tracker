@@ -2101,26 +2101,47 @@ function renderRoundRobin() {
 }
 
 // === LIVE FEED ===
-const feedEntries = [];
+let feedEntries = [];
 const prevBetStatuses = {};
 const prevRRStatuses = {};
 const settledStatuses = new Set(['won', 'lost', 'push']);
+const FEED_STORAGE_KEY = 'masters2026_feed';
+const FEED_SETTLED_KEY = 'masters2026_settled';
+let isFirstFeedRun = true;
+
+// Load persisted feed and settled set from localStorage
+try {
+  const saved = localStorage.getItem(FEED_STORAGE_KEY);
+  if (saved) feedEntries = JSON.parse(saved);
+} catch(e) {}
+const knownSettled = new Set();
+try {
+  const saved = localStorage.getItem(FEED_SETTLED_KEY);
+  if (saved) JSON.parse(saved).forEach(id => knownSettled.add(id));
+} catch(e) {}
+
+function persistFeed() {
+  try {
+    localStorage.setItem(FEED_STORAGE_KEY, JSON.stringify(feedEntries));
+    localStorage.setItem(FEED_SETTLED_KEY, JSON.stringify([...knownSettled]));
+  } catch(e) {}
+}
 
 function checkFeedUpdates() {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  let changed = false;
 
   // Check straight bets
   bets.forEach(b => {
     const status = getBetStatus(b);
-    const prev = prevBetStatuses[b.id];
-    if (settledStatuses.has(status) && !settledStatuses.has(prev)) {
-      const g = golfers[b.golfer];
+    const betKey = 'bet_' + b.id;
+    if (settledStatuses.has(status) && !knownSettled.has(betKey)) {
       let pnl = 0;
       if (status === 'won') pnl = b.toWin;
       else if (status === 'lost') pnl = -b.risk;
       feedEntries.unshift({
-        time: timeStr,
+        time: isFirstFeedRun ? 'Earlier' : timeStr,
         golfer: b.golfer,
         label: b.label,
         opponent: b.opponent || null,
@@ -2129,6 +2150,8 @@ function checkFeedUpdates() {
         risk: b.risk,
         type: b.type
       });
+      knownSettled.add(betKey);
+      changed = true;
     }
     prevBetStatuses[b.id] = status;
   });
@@ -2136,14 +2159,14 @@ function checkFeedUpdates() {
   // Check RR parlays
   rrParlays.forEach((p, i) => {
     const status = getRRParlayStatus(p);
-    const prev = prevRRStatuses[i];
-    if (settledStatuses.has(status) && !settledStatuses.has(prev)) {
+    const rrKey = 'rr_' + i;
+    if (settledStatuses.has(status) && !knownSettled.has(rrKey)) {
       const legNames = p.legs.map(l => l.name.split(' ').pop()).join(' + ');
       let pnl = 0;
       if (status === 'won') pnl = p.profit;
       else if (status === 'lost') pnl = -RR_BET_SIZE;
       feedEntries.unshift({
-        time: timeStr,
+        time: isFirstFeedRun ? 'Earlier' : timeStr,
         golfer: legNames,
         label: `${p.size}-Way Parlay ${p.americanOdds}`,
         status,
@@ -2151,9 +2174,14 @@ function checkFeedUpdates() {
         risk: RR_BET_SIZE,
         type: 'rrparlay'
       });
+      knownSettled.add(rrKey);
+      changed = true;
     }
     prevRRStatuses[i] = status;
   });
+
+  isFirstFeedRun = false;
+  if (changed) persistFeed();
 }
 
 function renderFeed() {
