@@ -622,9 +622,9 @@
       <div class="kpi-sub" id="kpiUnsettledSub">All bets pending</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Max Payout</div>
-      <div class="kpi-value kpi-green">$23,551</div>
-      <div class="kpi-sub">If all bets win</div>
+      <div class="kpi-label">Best Case</div>
+      <div class="kpi-value kpi-green" id="kpiBestCase">$0</div>
+      <div class="kpi-sub" id="kpiBestCaseSub">If remaining bets win</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Current P&L</div>
@@ -1850,6 +1850,22 @@ function renderKPIs() {
     unsettledEl.className = 'kpi-value' + (unsettledRisk > 0 ? '' : ' kpi-green');
     unsettledSubEl.textContent = unsettledCount + ' bets still in play';
   }
+
+  // Best Case: realized P&L + all remaining unsettled bets winning
+  let bestCase = pnl; // start with realized
+  bets.forEach(b => {
+    const s = getBetStatus(b);
+    if (!settledStatuses.has(s)) bestCase += b.toWin; // unsettled bet wins
+  });
+  rrParlays.forEach(p => {
+    const s = getRRParlayStatus(p);
+    if (!settledStatuses.has(s)) bestCase += getRRParlayProfit(p); // unsettled parlay wins
+  });
+  const bcEl = document.getElementById('kpiBestCase');
+  const bcSubEl = document.getElementById('kpiBestCaseSub');
+  bcEl.textContent = (bestCase >= 0 ? '+' : '-') + formatMoney(bestCase);
+  bcEl.className = 'kpi-value kpi-green';
+  bcSubEl.textContent = `If remaining ${unsettledCount} bets win`;
 
   // Projected P&L + ROI
   const projRoi = totalRisked > 0 ? ((projPnl / totalRisked) * 100).toFixed(1) : 0;
