@@ -644,12 +644,12 @@
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-label">Total Wagered</div>
-      <div class="kpi-value" style="color: var(--text);">$22,347</div>
-      <div class="kpi-sub">62 bets + 26 RR parlays</div>
+      <div class="kpi-value" style="color: var(--text);">$23,597</div>
+      <div class="kpi-sub">63 bets + 26 RR parlays</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Unsettled Risk</div>
-      <div class="kpi-value" id="kpiUnsettled" style="color: var(--text);">$22,347</div>
+      <div class="kpi-value" id="kpiUnsettled" style="color: var(--text);">$23,597</div>
       <div class="kpi-sub" id="kpiUnsettledSub">All bets pending</div>
     </div>
     <div class="kpi-card">
@@ -746,6 +746,38 @@
               </tr>
             </thead>
             <tbody id="outrightBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- R3 Leader -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/></svg>
+          R3 Leader
+          <span class="section-badge">1 bet &bull; $1,250 risked</span>
+        </div>
+      </div>
+      <div id="r3leaderPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th>Bet</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">Position</th>
+                <th class="center">Score</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r3leaderBody">
             </tbody>
           </table>
         </div>
@@ -1231,6 +1263,7 @@ const bets = [
   // Outright (additional)
   { id: 61, golfer: 'Rory McIlroy', type: 'outright', label: 'Win Tournament', odds: '-250', risk: 5000, toWin: 2000 },
   { id: 62, golfer: 'Rory McIlroy', type: 'outright', label: 'Win Tournament', odds: '-136', risk: 680, toWin: 500 },
+  { id: 63, golfer: 'Rory McIlroy', type: 'r3leader', label: 'R3 Leader', odds: '-250', risk: 1250, toWin: 500 },
 ];
 
 // === ROUND ROBIN DATA ===
@@ -1577,6 +1610,21 @@ function getBetStatus(bet) {
     if (gToPar > oToPar) return 'losing';
     return 'tied';
   }
+  if (bet.type === 'r3leader') {
+    // Wins if golfer is the sole leader after R3 (lowest total to-par through 54 holes)
+    if (g.r3Thru === 0) return 'pending';
+    // Check current position — if they're T1 or 1, they're leading
+    const pos = g.displayPos || g.pos;
+    if (g.r3Thru >= 18) {
+      if (pos === '1') return 'won';
+      if (pos && pos.startsWith('T1')) return 'push'; // tied for lead could push or lose depending on rules
+      return 'lost';
+    }
+    // In progress
+    if (pos === '1' || (pos && pos.startsWith('T1'))) return 'winning';
+    if (pos && parseInt(pos.replace('T','')) <= 3) return 'pending';
+    return 'losing';
+  }
   if (bet.type === 'r3matchup') {
     const opp = golfers[bet.opponent];
     if (!opp) return 'pending';
@@ -1767,7 +1815,27 @@ function renderOutright() {
       <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
       <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
       <td class="center"><span class="pos-cell">${g.cut ? 'CUT' : formatPos(g)}</span></td>
-      <td class="center"><span class="score-cell ${scoreClass(g.toPar, (g.r1Thru||0)+(g.r2Thru||0))}">${formatScore(g.toPar, (g.r1Thru||0)+(g.r2Thru||0))}</span>${(g.r1Thru||0)+(g.r2Thru||0) > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0))}">${formatScore(g.toPar, (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0))}</span>${(g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0) > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderR3Leader() {
+  const tbody = document.getElementById('r3leaderBody');
+  document.getElementById('r3leaderPnl').innerHTML = pnlBadgeHtml('r3leader');
+  tbody.innerHTML = bets.filter(b => b.type === 'r3leader').map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    const totalPlayed = (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0);
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td>${b.label}</td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="pos-cell">${formatPos(g)}</span></td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, totalPlayed)}">${formatScore(g.toPar, totalPlayed)}</span>${totalPlayed > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
       <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
     </tr>`;
   }).join('');
@@ -2533,6 +2601,7 @@ function renderFeed() {
 function renderAll() {
   renderMatchup();
   renderOutright();
+  renderR3Leader();
   renderTop10();
   renderTop20();
   renderR1();
