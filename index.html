@@ -613,12 +613,12 @@
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-label">Total Wagered</div>
-      <div class="kpi-value" style="color: var(--text);">$16,667</div>
-      <div class="kpi-sub">60 bets + 26 RR parlays</div>
+      <div class="kpi-value" style="color: var(--text);">$21,667</div>
+      <div class="kpi-sub">61 bets + 26 RR parlays</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Unsettled Risk</div>
-      <div class="kpi-value" id="kpiUnsettled" style="color: var(--text);">$16,667</div>
+      <div class="kpi-value" id="kpiUnsettled" style="color: var(--text);">$21,667</div>
       <div class="kpi-sub" id="kpiUnsettledSub">All bets pending</div>
     </div>
     <div class="kpi-card">
@@ -695,7 +695,7 @@
         <div class="section-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/></svg>
           Outright Winner
-          <span class="section-badge">1 bet &bull; $100 risked</span>
+          <span class="section-badge">2 bets &bull; $5,100 risked</span>
         </div>
       </div>
       <div id="outrightPnl"></div>
@@ -1197,6 +1197,8 @@ const bets = [
   { id: 58, golfer: 'Kristoffer Reitan', type: 'r3over', label: 'O 72.5', line: 72.5, odds: '-120', risk: 300, toWin: 250 },
   { id: 59, golfer: 'Brian Harman', type: 'r3over', label: 'O 72.5', line: 72.5, odds: '-125', risk: 312, toWin: 250 },
   { id: 60, golfer: 'Sam Burns', type: 'r3over', label: 'O 71.5', line: 71.5, odds: '-125', risk: 312, toWin: 250 },
+  // Outright (additional)
+  { id: 61, golfer: 'Rory McIlroy', type: 'outright', label: 'Win Tournament', odds: '-250', risk: 5000, toWin: 2000 },
 ];
 
 // === ROUND ROBIN DATA ===
