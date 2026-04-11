@@ -539,6 +539,37 @@
       background: rgba(0, 103, 71, 0.08) !important;
     }
     .lb-tracked td:first-child { padding-left: 11px; }
+    .lb-cut-row td {
+      opacity: 0.45;
+    }
+    .lb-cut-row .lb-name {
+      color: var(--text-faint);
+    }
+    .lb-cut-row .lb-pos {
+      color: var(--text-faint);
+    }
+    .lb-cut-row.lb-tracked {
+      opacity: 1;
+      background: rgba(180, 40, 40, 0.10) !important;
+      border-left-color: #b42828;
+    }
+    .lb-cut-row.lb-tracked td {
+      opacity: 0.65;
+    }
+    .lb-cut-row.lb-tracked .lb-name {
+      color: #b42828;
+    }
+    .lb-cut-divider td {
+      background: var(--surface-alt);
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
     .lb-pos {
       font-family: var(--font-mono);
       font-weight: 700;
@@ -2056,11 +2087,15 @@ function renderLeaderboard() {
   }
   badge.textContent = fullLeaderboard.length + ' players';
 
-  tbody.innerHTML = fullLeaderboard.map(p => {
+  const activePlayers = fullLeaderboard.filter(p => !p.cut);
+  const cutPlayers = fullLeaderboard.filter(p => p.cut);
+
+  function renderPlayerRow(p) {
     const isTracked = p.tracked;
+    const isCut = p.cut;
     // Thru = current round progress
     const activeThru = currentRound >= 3 ? p.r3Thru : currentRound >= 2 ? p.r2Thru : p.r1Thru;
-    const thruDisplay = activeThru === 0 ? '\u2014' : activeThru >= 18 ? 'F' : activeThru;
+    const thruDisplay = isCut ? '\u2014' : activeThru === 0 ? '\u2014' : activeThru >= 18 ? 'F' : activeThru;
     const r1Display = p.r1Strokes && p.r1Thru > 0 ? p.r1Strokes : '\u2014';
     const r2Display = p.r2Strokes && p.r2Thru > 0 ? p.r2Strokes : '\u2014';
     // For overall score display, use total holes played (R1+R2+R3) so we show score even between rounds
@@ -2070,18 +2105,23 @@ function renderLeaderboard() {
     // Today's to-par: use current round strokes vs par for holes played
     let todayDisplay = '\u2014';
     let todayCls = '';
-    const rdThru = currentRound >= 3 ? p.r3Thru : currentRound >= 2 ? p.r2Thru : p.r1Thru;
-    const rdStrokes = currentRound >= 3 ? p.r3Strokes : currentRound >= 2 ? p.r2Strokes : p.r1Strokes;
-    if (rdThru > 0 && rdStrokes != null) {
-      const diff = rdStrokes - parThrough(rdThru);
-      const thruLabel = rdThru >= 18 ? '' : ` (${rdThru})`;
-      if (diff === 0) { todayDisplay = 'E' + thruLabel; todayCls = 'score-even'; }
-      else if (diff < 0) { todayDisplay = diff + thruLabel; todayCls = 'score-under'; }
-      else { todayDisplay = '+' + diff + thruLabel; todayCls = 'score-over'; }
+    if (!isCut) {
+      const rdThru = currentRound >= 3 ? p.r3Thru : currentRound >= 2 ? p.r2Thru : p.r1Thru;
+      const rdStrokes = currentRound >= 3 ? p.r3Strokes : currentRound >= 2 ? p.r2Strokes : p.r1Strokes;
+      if (rdThru > 0 && rdStrokes != null) {
+        const diff = rdStrokes - parThrough(rdThru);
+        const thruLabel = rdThru >= 18 ? '' : ` (${rdThru})`;
+        if (diff === 0) { todayDisplay = 'E' + thruLabel; todayCls = 'score-even'; }
+        else if (diff < 0) { todayDisplay = diff + thruLabel; todayCls = 'score-under'; }
+        else { todayDisplay = '+' + diff + thruLabel; todayCls = 'score-over'; }
+      }
     }
 
-    return `<tr class="${isTracked ? 'lb-tracked' : ''}">
-      <td class="center"><span class="lb-pos">${p.displayPos}</span></td>
+    const rowClasses = [isCut ? 'lb-cut-row' : '', isTracked ? 'lb-tracked' : ''].filter(Boolean).join(' ');
+    const posDisplay = isCut ? 'CUT' : p.displayPos;
+
+    return `<tr class="${rowClasses}">
+      <td class="center"><span class="lb-pos">${posDisplay}</span></td>
       <td><span class="lb-name">${p.name}</span>${isTracked ? '<span class="lb-tag">MY BET</span>' : ''}</td>
       <td class="center"><span class="score-cell ${sc}">${formatScore(p.toPar, totalHolesPlayed)}</span></td>
       <td class="center"><span class="score-cell ${todayCls}">${todayDisplay}</span></td>
@@ -2089,7 +2129,14 @@ function renderLeaderboard() {
       <td class="center hide-mobile"><span class="score-cell">${r1Display}</span></td>
       <td class="center hide-mobile"><span class="score-cell">${r2Display}</span></td>
     </tr>`;
-  }).join('');
+  }
+
+  let html = activePlayers.map(renderPlayerRow).join('');
+  if (cutPlayers.length > 0) {
+    html += `<tr class="lb-cut-divider"><td colspan="7">Missed Cut (${cutPlayers.length})</td></tr>`;
+    html += cutPlayers.map(renderPlayerRow).join('');
+  }
+  tbody.innerHTML = html;
 }
 
 function renderR2Matchup() {
