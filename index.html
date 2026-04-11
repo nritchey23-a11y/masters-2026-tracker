@@ -539,6 +539,91 @@
       background: rgba(0, 103, 71, 0.08) !important;
     }
     .lb-tracked td:first-child { padding-left: 11px; }
+    /* Daily P&L Tracker */
+    .daily-pnl {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .daily-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .daily-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .daily-card-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .daily-card-round {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(0, 103, 71, 0.12);
+      color: var(--green-accent);
+    }
+    .daily-card-round.active {
+      background: rgba(0, 103, 71, 0.25);
+      animation: pulse-badge 2s ease-in-out infinite;
+    }
+    @keyframes pulse-badge {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .daily-card-pnl {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .daily-card-record {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .daily-card-sub {
+      font-size: 11px;
+      color: var(--text-faint);
+    }
+    .daily-card-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+    .daily-card-bar.green { background: var(--green-accent); }
+    .daily-card-bar.red { background: var(--red-accent); }
+    .daily-card-bar.neutral { background: var(--border); }
+    .daily-card.pending {
+      opacity: 0.55;
+    }
+    .daily-card.pending .daily-card-pnl {
+      color: var(--text-faint);
+    }
+    @media (max-width: 600px) {
+      .daily-pnl {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .daily-card-pnl { font-size: 22px; }
+    }
+
     .lb-cut-row td {
       opacity: 0.45;
     }
@@ -678,6 +763,9 @@
       <div class="kpi-sub" id="kpiProjectedSub">Based on current positions</div>
     </div>
   </div>
+
+  <!-- Daily P&L Tracker -->
+  <div id="dailyPnlTracker" class="daily-pnl"></div>
 
   <!-- Tabs -->
   <div class="tabs">
@@ -2128,6 +2216,93 @@ function renderKPIs() {
   }
 }
 
+function renderDailyPnl() {
+  // Map bet types to rounds
+  const roundMap = {
+    'r1under': 1,
+    'r2matchup': 2, 'r2under': 2, 'r2threeball': 2,
+    'r3matchup': 3, 'r3over': 3, 'r3leader': 3,
+    // Tournament-long bets go to 'T'
+    'outright': 'T', 'top10': 'T', 'top20': 'T', 'matchup': 'T'
+  };
+
+  const days = [
+    { key: 1, label: 'Thursday', round: 'R1' },
+    { key: 2, label: 'Friday', round: 'R2' },
+    { key: 3, label: 'Saturday', round: 'R3' },
+    { key: 'T', label: 'Tournament', round: 'Tourn.' }
+  ];
+
+  const container = document.getElementById('dailyPnlTracker');
+  if (!container) return;
+
+  const settledSet = new Set(['won', 'lost', 'push']);
+
+  container.innerHTML = days.map(day => {
+    // Gather bets + RR parlays for this round
+    const dayBets = bets.filter(b => roundMap[b.type] === day.key);
+    // RR parlays are R2
+    const dayRR = day.key === 2 ? rrParlays : [];
+
+    let pnl = 0, wins = 0, losses = 0, pushes = 0, risked = 0, settled = 0;
+
+    dayBets.forEach(b => {
+      risked += b.risk;
+      const s = getBetStatus(b);
+      if (s === 'won') { pnl += b.toWin; wins++; settled++; }
+      else if (s === 'lost') { pnl -= b.risk; losses++; settled++; }
+      else if (s === 'push') { pushes++; settled++; }
+    });
+
+    dayRR.forEach(p => {
+      risked += RR_BET_SIZE;
+      const s = getRRParlayStatus(p);
+      if (s === 'won') { pnl += getRRParlayProfit(p); wins++; settled++; }
+      else if (s === 'lost') { pnl -= RR_BET_SIZE; losses++; settled++; }
+      else if (s === 'push') { pushes++; settled++; }
+    });
+
+    const totalBets = dayBets.length + dayRR.length;
+    const hasAction = totalBets > 0;
+    const allSettled = settled === totalBets && totalBets > 0;
+    const noneSettled = settled === 0;
+    const isActive = !allSettled && !noneSettled;
+
+    // Determine which round is currently in play
+    const isCurrentRound = day.key === currentRound;
+    const isFutureRound = typeof day.key === 'number' && day.key > currentRound;
+
+    const pnlDisplay = noneSettled ? '$0' : (pnl >= 0 ? '+' : '-') + formatMoney(pnl);
+    const pnlClass = noneSettled ? '' : pnl >= 0 ? 'kpi-green' : 'kpi-red';
+    const barClass = noneSettled ? 'neutral' : pnl >= 0 ? 'green' : 'red';
+
+    let record = '';
+    if (settled > 0) {
+      record = `${wins}W - ${losses}L`;
+      if (pushes > 0) record += ` - ${pushes}P`;
+    } else {
+      record = `${totalBets} bet${totalBets !== 1 ? 's' : ''} pending`;
+    }
+
+    const roi = settled > 0 && risked > 0 ? ((pnl / risked) * 100).toFixed(1) : null;
+    const sub = roi !== null ? `$${risked.toLocaleString()} risked · ROI: ${pnl >= 0 ? '+' : ''}${roi}%` : `$${risked.toLocaleString()} risked`;
+
+    const cardClass = (!hasAction || (isFutureRound && noneSettled)) ? 'daily-card pending' : 'daily-card';
+    const roundBadge = isCurrentRound && !allSettled ? 'daily-card-round active' : 'daily-card-round';
+
+    return `<div class="${cardClass}">
+      <div class="daily-card-header">
+        <span class="daily-card-label">${day.label}</span>
+        <span class="${roundBadge}">${day.round}${isCurrentRound && !allSettled ? ' · LIVE' : ''}</span>
+      </div>
+      <div class="daily-card-pnl ${pnlClass}">${pnlDisplay}</div>
+      <div class="daily-card-record">${record}</div>
+      <div class="daily-card-sub">${sub}</div>
+      <div class="daily-card-bar ${barClass}"></div>
+    </div>`;
+  }).join('');
+}
+
 function renderMatchup() {
   const tbody = document.getElementById('matchupBody');
   document.getElementById('matchupPnl').innerHTML = pnlBadgeHtml('matchup');
@@ -2599,6 +2774,7 @@ function renderFeed() {
 }
 
 function renderAll() {
+  renderDailyPnl();
   renderMatchup();
   renderOutright();
   renderR3Leader();
