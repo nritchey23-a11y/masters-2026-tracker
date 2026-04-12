@@ -2068,19 +2068,22 @@ function formatThru(thru) {
 function calcSectionPnl(type) {
   const sectionBets = bets.filter(b => b.type === type);
   let realized = 0, projected = 0, settledRisk = 0, wins = 0, losses = 0, pushes = 0, ties = 0;
+  let projWins = 0, projLosses = 0, projTies = 0, projPushes = 0;
   const totalRisk = sectionBets.reduce((s, b) => s + b.risk, 0);
   sectionBets.forEach(b => {
     const status = getBetStatus(b);
-    if (status === 'won') { realized += b.toWin; settledRisk += b.risk; wins++; }
-    if (status === 'lost') { realized -= b.risk; settledRisk += b.risk; losses++; }
-    if (status === 'push') { pushes++; }
-    if (status === 'tied') { ties++; }
+    if (status === 'won') { realized += b.toWin; settledRisk += b.risk; wins++; projWins++; }
+    if (status === 'lost') { realized -= b.risk; settledRisk += b.risk; losses++; projLosses++; }
+    if (status === 'push') { pushes++; projPushes++; }
+    if (status === 'tied') { ties++; projTies++; }
+    if (status === 'winning') { projWins++; }
+    if (status === 'losing') { projLosses++; }
     if (status === 'won' || status === 'winning') { projected += b.toWin; }
     else if (status === 'lost' || status === 'losing') { projected -= b.risk; }
   });
   const projRoi = totalRisk > 0 ? ((projected / totalRisk) * 100).toFixed(1) : '0.0';
   const realRoi = settledRisk > 0 ? ((realized / settledRisk) * 100).toFixed(1) : null;
-  return { realized, projected, totalRisk, projRoi, realRoi, settledRisk, wins, losses, pushes, ties, total: sectionBets.length };
+  return { realized, projected, totalRisk, projRoi, realRoi, settledRisk, wins, losses, pushes, ties, projWins, projLosses, projTies, projPushes, total: sectionBets.length };
 }
 
 function pnlBadgeHtml(type) {
@@ -2098,8 +2101,18 @@ function pnlBadgeHtml(type) {
     const rColor = p.realized >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
     parts.push(`<span style="color:${rColor};font-family:var(--font-mono);font-weight:600;">${p.realized >= 0 ? '+' : '-'}$${Math.abs(p.realized).toLocaleString()}</span> realized (${p.realized >= 0 ? '+' : ''}${p.realRoi}% ROI)`);
   }
-  const pColor = p.projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
-  parts.push(`<span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${p.projected >= 0 ? '+' : '-'}$${Math.abs(p.projected).toLocaleString()}</span> projected (${p.projected >= 0 ? '+' : ''}${p.projRoi}% ROI)`);
+  // Projected record + P&L
+  const projSettled = p.projWins + p.projLosses + p.projPushes;
+  if (projSettled > 0 || p.projTies > 0) {
+    let projRecord = `${p.projWins}W-${p.projLosses}L`;
+    if (p.projTies > 0) projRecord += `-${p.projTies}T`;
+    if (p.projPushes > 0) projRecord += `-${p.projPushes}P`;
+    const pColor = p.projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+    parts.push(`<span style="font-weight:600;">${projRecord}</span> <span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${p.projected >= 0 ? '+' : '-'}$${Math.abs(p.projected).toLocaleString()}</span> projected (${p.projected >= 0 ? '+' : ''}${p.projRoi}% ROI)`);
+  } else {
+    const pColor = p.projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+    parts.push(`<span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${p.projected >= 0 ? '+' : '-'}$${Math.abs(p.projected).toLocaleString()}</span> projected (${p.projected >= 0 ? '+' : ''}${p.projRoi}% ROI)`);
+  }
   return `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${parts.join(' &nbsp;|&nbsp; ')}</div>`;
 }
 
@@ -2709,13 +2722,16 @@ function renderR4Score() {
   // Combined pnl for r4over + r4under
   const r4ScoreBets = bets.filter(b => b.type === 'r4over' || b.type === 'r4under');
   let realized = 0, projected = 0, settledRisk = 0, wins = 0, losses = 0, pushes = 0, ties = 0;
+  let projWins = 0, projLosses = 0, projTies = 0, projPushes = 0;
   const totalRisk = r4ScoreBets.reduce((s, b) => s + b.risk, 0);
   r4ScoreBets.forEach(b => {
     const status = getBetStatus(b);
-    if (status === 'won') { realized += b.toWin; settledRisk += b.risk; wins++; }
-    if (status === 'lost') { realized -= b.risk; settledRisk += b.risk; losses++; }
-    if (status === 'push') { pushes++; }
-    if (status === 'tied') { ties++; }
+    if (status === 'won') { realized += b.toWin; settledRisk += b.risk; wins++; projWins++; }
+    if (status === 'lost') { realized -= b.risk; settledRisk += b.risk; losses++; projLosses++; }
+    if (status === 'push') { pushes++; projPushes++; }
+    if (status === 'tied') { ties++; projTies++; }
+    if (status === 'winning') { projWins++; }
+    if (status === 'losing') { projLosses++; }
     if (status === 'won' || status === 'winning') { projected += b.toWin; }
     else if (status === 'lost' || status === 'losing') { projected -= b.risk; }
   });
@@ -2733,8 +2749,17 @@ function renderR4Score() {
     const rColor = realized >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
     parts.push(`<span style="color:${rColor};font-family:var(--font-mono);font-weight:600;">${realized >= 0 ? '+' : '-'}$${Math.abs(realized).toLocaleString()}</span> realized (${realized >= 0 ? '+' : ''}${realRoi}% ROI)`);
   }
-  const pColor = projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
-  parts.push(`<span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${projected >= 0 ? '+' : '-'}$${Math.abs(projected).toLocaleString()}</span> projected (${projected >= 0 ? '+' : ''}${projRoi}% ROI)`);
+  const projAll = projWins + projLosses + projPushes;
+  if (projAll > 0 || projTies > 0) {
+    let projRecord = `${projWins}W-${projLosses}L`;
+    if (projTies > 0) projRecord += `-${projTies}T`;
+    if (projPushes > 0) projRecord += `-${projPushes}P`;
+    const pColor = projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+    parts.push(`<span style="font-weight:600;">${projRecord}</span> <span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${projected >= 0 ? '+' : '-'}$${Math.abs(projected).toLocaleString()}</span> projected (${projected >= 0 ? '+' : ''}${projRoi}% ROI)`);
+  } else {
+    const pColor = projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+    parts.push(`<span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${projected >= 0 ? '+' : '-'}$${Math.abs(projected).toLocaleString()}</span> projected (${projected >= 0 ? '+' : ''}${projRoi}% ROI)`);
+  }
   document.getElementById('r4scorePnl').innerHTML = `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${parts.join(' &nbsp;|&nbsp; ')}</div>`;
 
   tbody.innerHTML = r4ScoreBets.map(b => {
