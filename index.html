@@ -729,8 +729,8 @@
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-label">Total Wagered</div>
-      <div class="kpi-value" style="color: var(--text);">$23,597</div>
-      <div class="kpi-sub">63 bets + 26 RR parlays</div>
+      <div class="kpi-value" style="color: var(--text);">$26,145</div>
+      <div class="kpi-sub">73 bets + 26 RR parlays</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Unsettled Risk</div>
@@ -1133,6 +1133,104 @@
       </div>
     </div>
 
+    <!-- R4 Matchups -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M8 3H3v5M3 16v5h5M16 21h5v-5"/><path d="M21 3L14 10M3 3l7 7M3 21l7-7M21 21l-7-7"/></svg>
+          Round 4 Matchups
+          <span class="section-badge">5 bets &bull; $1,324 risked</span>
+        </div>
+      </div>
+      <div id="r4matchupPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Matchup</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">Pick R4</th>
+                <th class="center">Pick To Par</th>
+                <th class="center">Opp R4</th>
+                <th class="center">Opp To Par</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r4matchupBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- R4 Score Over/Under -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M6 20V4M18 20v-4"/></svg>
+          Round 4 Score O/U
+          <span class="section-badge">4 bets &bull; $1,174 risked</span>
+        </div>
+      </div>
+      <div id="r4scorePnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th>Line</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">R4 Score</th>
+                <th class="center">To Par</th>
+                <th class="center">R4 Thru</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r4scoreBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- R4 Best Score -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          R4 Best Score
+          <span class="section-badge">1 bet &bull; $50 risked</span>
+        </div>
+      </div>
+      <div id="r4bestPnl"></div>
+      <div class="bet-table-wrap">
+        <div class="table-overflow">
+          <table class="bet-table">
+            <thead>
+              <tr>
+                <th>Golfer</th>
+                <th>Bet</th>
+                <th class="right">Odds</th>
+                <th class="right">Risk</th>
+                <th class="right">To Win</th>
+                <th class="center">R4 Score</th>
+                <th class="center">Thru</th>
+                <th class="center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="r4bestBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- Round Robin -->
     <div class="section">
       <div class="section-header">
@@ -1220,60 +1318,63 @@ let fullLeaderboard = [];
 let currentRound = 1; // Detected from ESPN data
 
 const golfers = {
-  'Jordan Spieth':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Tommy Fleetwood': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Corey Conners':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Justin Rose':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Cameron Young':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Patrick Reed':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Cameron Smith':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Sungjae Im':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Patrick Cantlay': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Adam Scott':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Justin Thomas':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Collin Morikawa': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Brooks Koepka':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Min Woo Lee':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Bryson DeChambeau': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Rory McIlroy':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Ludvig Aberg':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Robert MacIntyre': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Tyrrell Hatton':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Sam Burns':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Kurt Kitayama':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Scottie Scheffler': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Maverick McNealy':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'J.J. Spaun':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Jake Knapp':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Mason Howell':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Kristoffer Reitan': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Casey Jarvis':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Gary Woodland':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Sepp Straka':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Ben Griffin':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Harry Hall':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Michael Brennan':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Aaron Rai':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Viktor Hovland':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Shane Lowry':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Jason Day':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Jacob Bridgeman':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Hideki Matsuyama':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Jon Rahm':          { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Nicolai Højgaard':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Haotong Li':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Carlos Ortiz':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Sam Stevens':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Michael Kim':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Aldrich Potgieter': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Rasmus Højgaard':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Max Homa':          { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jordan Spieth':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Tommy Fleetwood': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Corey Conners':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Justin Rose':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Cameron Young':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Patrick Reed':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Cameron Smith':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sungjae Im':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Patrick Cantlay': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Adam Scott':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Justin Thomas':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Collin Morikawa': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Brooks Koepka':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Min Woo Lee':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Bryson DeChambeau': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Rory McIlroy':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Ludvig Aberg':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Robert MacIntyre': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Tyrrell Hatton':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sam Burns':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Kurt Kitayama':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Scottie Scheffler': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Maverick McNealy':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'J.J. Spaun':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jake Knapp':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Mason Howell':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Kristoffer Reitan': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Casey Jarvis':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Gary Woodland':     { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sepp Straka':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Ben Griffin':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Harry Hall':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Michael Brennan':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Aaron Rai':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Viktor Hovland':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Shane Lowry':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jason Day':         { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jacob Bridgeman':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Hideki Matsuyama':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Jon Rahm':          { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Nicolai Højgaard':  { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Haotong Li':        { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Carlos Ortiz':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Sam Stevens':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Michael Kim':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Aldrich Potgieter': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Rasmus Højgaard':   { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Max Homa':          { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
   // R3 matchup opponents
-  'Keegan Bradley':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Ryan Gerard':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Xander Schauffele': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Harris English':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
-  'Brian Harman':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Keegan Bradley':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Ryan Gerard':       { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Xander Schauffele': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Harris English':    { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Brian Harman':      { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  // R4 matchup/score opponents
+  'Chris Gotterup': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
+  'Russell Henley': { pos: null, toPar: null, toParNum: null, r1: null, r1Strokes: null, r2Strokes: null, r3Strokes: null, r4Strokes: null, r1Thru: 0, r2Thru: 0, r3Thru: 0, r4Thru: 0, thru: 0, cut: false, teeTime: '—', group: '' },
 };
 
 const bets = [
@@ -1352,6 +1453,19 @@ const bets = [
   { id: 61, golfer: 'Rory McIlroy', type: 'outright', label: 'Win Tournament', odds: '-250', risk: 5000, toWin: 2000 },
   { id: 62, golfer: 'Rory McIlroy', type: 'outright', label: 'Win Tournament', odds: '-136', risk: 680, toWin: 500 },
   { id: 63, golfer: 'Rory McIlroy', type: 'r3leader', label: 'R3 Leader (Dead Heat)', odds: '-250', risk: 1250, toWin: 250, settled: 'won' },
+  // R4 Score Overs/Unders
+  { id: 64, golfer: 'Sam Burns', type: 'r4over', label: 'O 70.5', line: 70.5, odds: '-115', risk: 287, toWin: 250 },
+  { id: 65, golfer: 'Chris Gotterup', type: 'r4over', label: 'O 70.5', line: 70.5, odds: '-135', risk: 337, toWin: 250 },
+  { id: 66, golfer: 'Patrick Cantlay', type: 'r4over', label: 'O 70.5', line: 70.5, odds: '-120', risk: 300, toWin: 250 },
+  { id: 67, golfer: 'Sungjae Im', type: 'r4under', label: 'U 70.5', line: 70.5, odds: '+100', risk: 250, toWin: 250 },
+  // R4 Matchups
+  { id: 68, golfer: 'Haotong Li', type: 'r4matchup', label: 'Li > Griffin R4', opponent: 'Ben Griffin', odds: '+140', risk: 200, toWin: 280 },
+  { id: 69, golfer: 'Max Homa', type: 'r4matchup', label: 'Homa > Reitan R4', opponent: 'Kristoffer Reitan', odds: '-115', risk: 287, toWin: 250 },
+  { id: 70, golfer: 'Russell Henley', type: 'r4matchup', label: 'Henley > Knapp R4', opponent: 'Jake Knapp', odds: '-115', risk: 287, toWin: 250 },
+  { id: 71, golfer: 'Patrick Reed', type: 'r4matchup', label: 'Reed > Morikawa R4', opponent: 'Collin Morikawa', odds: '-120', risk: 300, toWin: 250 },
+  { id: 72, golfer: 'Jason Day', type: 'r4matchup', label: 'Day > Cantlay R4', opponent: 'Patrick Cantlay', odds: '+105', risk: 250, toWin: 262 },
+  // R4 Best Score
+  { id: 73, golfer: 'Brooks Koepka', type: 'r4best', label: 'R4 Best Score', odds: '+3000', risk: 50, toWin: 1500 },
 ];
 
 // === ROUND ROBIN DATA ===
@@ -1483,8 +1597,10 @@ async function fetchLiveScores() {
       const r2Holes = r2.linescores || [];
       const r3 = ls[2] || {};
       const r3Holes = r3.linescores || [];
+      const r4 = ls[3] || {};
+      const r4Holes = r4.linescores || [];
       // Current round thru
-      const currentThru = currentRound >= 3 ? r3Holes.length : currentRound >= 2 ? r2Holes.length : r1Holes.length;
+      const currentThru = currentRound >= 4 ? r4Holes.length : currentRound >= 3 ? r3Holes.length : currentRound >= 2 ? r2Holes.length : r1Holes.length;
       return {
         name: c.athlete?.displayName || '?',
         country: c.athlete?.flag?.alt || '',
@@ -1494,9 +1610,11 @@ async function fetchLiveScores() {
         r1Thru: r1Holes.length,
         r2Thru: r2Holes.length,
         r3Thru: r3Holes.length,
+        r4Thru: r4Holes.length,
         r1Strokes: r1.value || null,
         r2Strokes: r2.value || null,
         r3Strokes: r3.value || null,
+        r4Strokes: r4.value || null,
         cut: c.status?.type?.name === 'cut',
         tracked: !!matchGolferName(c.athlete?.displayName)
       };
@@ -1504,8 +1622,8 @@ async function fetchLiveScores() {
 
     // Compute tied positions: group by score, assign position = first index+1 in that group
     // Use total holes (R1+R2+R3) to determine "started" — a player between rounds still has a position
-    const startedPlayers = rawBoard.filter(p => (p.r1Thru + p.r2Thru + p.r3Thru) > 0);
-    const notStarted = rawBoard.filter(p => (p.r1Thru + p.r2Thru + p.r3Thru) === 0);
+    const startedPlayers = rawBoard.filter(p => (p.r1Thru + p.r2Thru + p.r3Thru + p.r4Thru) > 0);
+    const notStarted = rawBoard.filter(p => (p.r1Thru + p.r2Thru + p.r3Thru + p.r4Thru) === 0);
     let rank = 1;
     let i = 0;
     while (i < startedPlayers.length) {
@@ -1560,8 +1678,14 @@ async function fetchLiveScores() {
       const r3Holes = r3.linescores || [];
       g.r3Thru = r3Holes.length;
       g.r3Strokes = r3Holes.length > 0 ? (r3.value || null) : null;
+      // R4 data
+      const r4 = ls[3] || {};
+      const r4Holes = r4.linescores || [];
+      g.r4Thru = r4Holes.length;
+      g.r4Strokes = r4Holes.length > 0 ? (r4.value || null) : null;
       // g.thru = current round's thru
-      if (currentRound >= 3) g.thru = g.r3Thru;
+      if (currentRound >= 4) g.thru = g.r4Thru;
+      else if (currentRound >= 3) g.thru = g.r3Thru;
       else if (currentRound >= 2) g.thru = g.r2Thru;
       else g.thru = r1Thru;
       if (c.status?.type?.name === 'cut') {
@@ -1635,7 +1759,7 @@ function getOddsClass(odds) {
 
 function getBetStatus(bet) {
   const g = golfers[bet.golfer];
-  const gTotalPlayed = (g ? (g.r1Thru || 0) + (g.r2Thru || 0) + (g.r3Thru || 0) : 0);
+  const gTotalPlayed = (g ? (g.r1Thru || 0) + (g.r2Thru || 0) + (g.r3Thru || 0) + (g.r4Thru || 0) : 0);
   if (!g || gTotalPlayed === 0) return 'pending';
   
   if (bet.type === 'outright') {
@@ -1669,7 +1793,7 @@ function getBetStatus(bet) {
   }
   if (bet.type === 'matchup') {
     const opp = golfers[bet.opponent];
-    const oppTotalPlayed = opp ? (opp.r1Thru || 0) + (opp.r2Thru || 0) + (opp.r3Thru || 0) : 0;
+    const oppTotalPlayed = opp ? (opp.r1Thru || 0) + (opp.r2Thru || 0) + (opp.r3Thru || 0) + (opp.r4Thru || 0) : 0;
     if (!opp || gTotalPlayed === 0 || oppTotalPlayed === 0) return 'pending';
     if (g.cut && !opp.cut) return 'losing';
     if (!g.cut && opp.cut) return 'winning';
@@ -1742,6 +1866,84 @@ function getBetStatus(bet) {
     if (projected > bet.line + 1) return 'winning';
     if (projected < bet.line - 1) return 'losing';
     return 'pending';
+  }
+  if (bet.type === 'r4matchup') {
+    const opp = golfers[bet.opponent];
+    if (!opp) return 'pending';
+    if ((g.r4Thru || 0) === 0 && (opp.r4Thru || 0) === 0) return 'pending';
+    if ((g.r4Thru || 0) === 0 || (opp.r4Thru || 0) === 0) return 'pending';
+    const gToPar = g.r4Strokes - parThrough(g.r4Thru);
+    const oToPar = opp.r4Strokes - parThrough(opp.r4Thru);
+    if (g.r4Thru >= 18 && opp.r4Thru >= 18) {
+      if (gToPar < oToPar) return 'won';
+      if (gToPar > oToPar) return 'lost';
+      return 'push';
+    }
+    if (gToPar < oToPar) return 'winning';
+    if (gToPar > oToPar) return 'losing';
+    return 'tied';
+  }
+  if (bet.type === 'r4over') {
+    if ((g.r4Thru || 0) === 0 || g.r4Strokes === null) return 'pending';
+    if (g.r4Thru >= 18) {
+      if (g.r4Strokes > bet.line) return 'won';
+      if (g.r4Strokes < bet.line) return 'lost';
+      return 'push';
+    }
+    const projected = (g.r4Strokes / g.r4Thru) * 18;
+    if (projected > bet.line + 1) return 'winning';
+    if (projected < bet.line - 1) return 'losing';
+    return 'pending';
+  }
+  if (bet.type === 'r4under') {
+    if ((g.r4Thru || 0) === 0 || g.r4Strokes === null) return 'pending';
+    if (g.r4Thru >= 18) {
+      if (g.r4Strokes < bet.line) return 'won';
+      if (g.r4Strokes > bet.line) return 'lost';
+      return 'push';
+    }
+    const projected = (g.r4Strokes / g.r4Thru) * 18;
+    if (projected < bet.line - 1) return 'winning';
+    if (projected > bet.line + 1) return 'losing';
+    return 'pending';
+  }
+  if (bet.type === 'r4best') {
+    // R4 Best Score: golfer must have the lowest R4 score in the entire field
+    if ((g.r4Thru || 0) === 0) return 'pending';
+    // Check all tracked golfers for lowest R4 score
+    let lowestR4 = 999;
+    let anyFinished = false;
+    for (const name of Object.keys(golfers)) {
+      const p = golfers[name];
+      if (p.r4Thru >= 18 && p.r4Strokes !== null) {
+        anyFinished = true;
+        if (p.r4Strokes < lowestR4) lowestR4 = p.r4Strokes;
+      }
+    }
+    if (!anyFinished) {
+      // No one finished — use projected
+      let lowestProj = 999;
+      for (const name of Object.keys(golfers)) {
+        const p = golfers[name];
+        if (p.r4Thru > 0 && p.r4Strokes !== null) {
+          const proj = (p.r4Strokes / p.r4Thru) * 18;
+          if (proj < lowestProj) lowestProj = proj;
+        }
+      }
+      if (g.r4Strokes !== null && g.r4Thru > 0) {
+        const gProj = (g.r4Strokes / g.r4Thru) * 18;
+        if (gProj <= lowestProj) return 'winning';
+      }
+      return 'pending';
+    }
+    if (g.r4Thru >= 18) {
+      if (g.r4Strokes <= lowestR4) return 'won';
+      return 'lost';
+    }
+    // In progress
+    const gProj = (g.r4Strokes / g.r4Thru) * 18;
+    if (gProj <= lowestR4) return 'winning';
+    return 'losing';
   }
   if (bet.type === 'r2under') {
     if (g.r2Thru === 0 || g.r2Strokes === null) return 'pending';
@@ -1837,8 +2039,21 @@ function r3ToPar(g) {
   return { display, cls };
 }
 
+
+function r4ToPar(g) {
+  if (!g || (g.r4Thru || 0) === 0 || g.r4Strokes === null) return { display: '—', cls: '' };
+  const expectedPar = parThrough(g.r4Thru);
+  const diff = g.r4Strokes - expectedPar;
+  const thruLabel = g.r4Thru >= 18 ? '' : ` (${g.r4Thru})`;
+  let display, cls;
+  if (diff === 0) { display = 'E' + thruLabel; cls = 'score-even'; }
+  else if (diff < 0) { display = diff + thruLabel; cls = 'score-under'; }
+  else { display = '+' + diff + thruLabel; cls = 'score-over'; }
+  return { display, cls };
+}
+
 function formatPos(g) {
-  const totalPlayed = (g.r1Thru || 0) + (g.r2Thru || 0) + (g.r3Thru || 0);
+  const totalPlayed = (g.r1Thru || 0) + (g.r2Thru || 0) + (g.r3Thru || 0) + (g.r4Thru || 0);
   if (totalPlayed === 0 || g.pos === null) return '—';
   return g.displayPos || g.pos;
 }
@@ -1901,7 +2116,7 @@ function renderOutright() {
       <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
       <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
       <td class="center"><span class="pos-cell">${g.cut ? 'CUT' : formatPos(g)}</span></td>
-      <td class="center"><span class="score-cell ${scoreClass(g.toPar, (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0))}">${formatScore(g.toPar, (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0))}</span>${(g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0) > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
+      <td class="center"><span class="score-cell ${scoreClass(g.toPar, (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0)+(g.r4Thru||0))}">${formatScore(g.toPar, (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0)+(g.r4Thru||0))}</span>${(g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0)+(g.r4Thru||0) > 0 ? '<br><span style="font-size:10px;color:var(--text-faint)">thru '+formatThru(g.thru)+'</span>' : ''}</td>
       <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
     </tr>`;
   }).join('');
@@ -1913,7 +2128,7 @@ function renderR3Leader() {
   tbody.innerHTML = bets.filter(b => b.type === 'r3leader').map(b => {
     const g = golfers[b.golfer];
     const status = getBetStatus(b);
-    const totalPlayed = (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0);
+    const totalPlayed = (g.r1Thru||0)+(g.r2Thru||0)+(g.r3Thru||0)+(g.r4Thru||0);
     return `<tr>
       <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
       <td>${b.label}</td>
@@ -2220,6 +2435,7 @@ function renderDailyPnl() {
     'r1under': 1,
     'r2matchup': 2, 'r2under': 2, 'r2threeball': 2,
     'r3matchup': 3, 'r3over': 3, 'r3leader': 3,
+    'r4matchup': 4, 'r4over': 4, 'r4under': 4, 'r4best': 4,
     // Tournament-long bets go to 'T'
     'outright': 'T', 'top10': 'T', 'top20': 'T', 'matchup': 'T'
   };
@@ -2228,6 +2444,7 @@ function renderDailyPnl() {
     { key: 1, label: 'Thursday', round: 'R1' },
     { key: 2, label: 'Friday', round: 'R2' },
     { key: 3, label: 'Saturday', round: 'R3' },
+    { key: 4, label: 'Sunday', round: 'R4' },
     { key: 'T', label: 'Tournament', round: 'Tourn.' }
   ];
 
@@ -2455,6 +2672,119 @@ function renderR3Over() {
       <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
       <td class="center"><span class="score-cell ${r3Class}">${r3Display}</span></td>
       <td class="center"><span class="score-cell ${r3ToPar(g).cls}">${r3ToPar(g).display}</span></td>
+      <td class="center"><span class="score-cell">${thruDisplay}</span></td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+
+function renderR4Matchup() {
+  const tbody = document.getElementById('r4matchupBody');
+  document.getElementById('r4matchupPnl').innerHTML = pnlBadgeHtml('r4matchup');
+  tbody.innerHTML = bets.filter(b => b.type === 'r4matchup').map(b => {
+    const g = golfers[b.golfer];
+    const opp = golfers[b.opponent];
+    const status = getBetStatus(b);
+    const gR4 = (g.r4Thru || 0) > 0 ? g.r4Strokes + '' : '\u2014';
+    const oR4 = opp && (opp.r4Thru || 0) > 0 ? opp.r4Strokes + '' : '\u2014';
+    const gThru = (g.r4Thru || 0) > 0 ? (g.r4Thru >= 18 ? ' (F)' : ' (' + g.r4Thru + ')') : '';
+    const oThru = opp && (opp.r4Thru || 0) > 0 ? (opp.r4Thru >= 18 ? ' (F)' : ' (' + opp.r4Thru + ')') : '';
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span> <span style="color:var(--text-faint);margin:0 4px">vs</span> <span class="golfer-name">${b.opponent}</span></div></td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell">${gR4}</span><span style="font-size:10px;color:var(--text-faint)">${gThru}</span></td>
+      <td class="center"><span class="score-cell ${r4ToPar(g).cls}">${r4ToPar(g).display}</span></td>
+      <td class="center"><span class="score-cell">${oR4}</span><span style="font-size:10px;color:var(--text-faint)">${oThru}</span></td>
+      <td class="center"><span class="score-cell ${r4ToPar(opp).cls}">${r4ToPar(opp).display}</span></td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderR4Score() {
+  const tbody = document.getElementById('r4scoreBody');
+  // Combined pnl for r4over + r4under
+  const r4ScoreBets = bets.filter(b => b.type === 'r4over' || b.type === 'r4under');
+  let realized = 0, projected = 0, settledRisk = 0, wins = 0, losses = 0, pushes = 0, ties = 0;
+  const totalRisk = r4ScoreBets.reduce((s, b) => s + b.risk, 0);
+  r4ScoreBets.forEach(b => {
+    const status = getBetStatus(b);
+    if (status === 'won') { realized += b.toWin; settledRisk += b.risk; wins++; }
+    if (status === 'lost') { realized -= b.risk; settledRisk += b.risk; losses++; }
+    if (status === 'push') { pushes++; }
+    if (status === 'tied') { ties++; }
+    if (status === 'won' || status === 'winning') { projected += b.toWin; }
+    else if (status === 'lost' || status === 'losing') { projected -= b.risk; }
+  });
+  const projRoi = totalRisk > 0 ? ((projected / totalRisk) * 100).toFixed(1) : '0.0';
+  const realRoi = settledRisk > 0 ? ((realized / settledRisk) * 100).toFixed(1) : null;
+  let parts = [];
+  const settled = wins + losses + pushes;
+  if (settled > 0 || ties > 0) {
+    let record = `${wins}W-${losses}L`;
+    if (ties > 0) record += `-${ties}T`;
+    if (pushes > 0) record += `-${pushes}P`;
+    parts.push(`<span style="font-weight:600;">${record}</span>`);
+  }
+  if (settledRisk > 0) {
+    const rColor = realized >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+    parts.push(`<span style="color:${rColor};font-family:var(--font-mono);font-weight:600;">${realized >= 0 ? '+' : '-'}$${Math.abs(realized).toLocaleString()}</span> realized (${realized >= 0 ? '+' : ''}${realRoi}% ROI)`);
+  }
+  const pColor = projected >= 0 ? 'var(--green-accent)' : 'var(--red-accent)';
+  parts.push(`<span style="color:${pColor};font-family:var(--font-mono);font-weight:600;">${projected >= 0 ? '+' : '-'}$${Math.abs(projected).toLocaleString()}</span> projected (${projected >= 0 ? '+' : ''}${projRoi}% ROI)`);
+  document.getElementById('r4scorePnl').innerHTML = `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${parts.join(' &nbsp;|&nbsp; ')}</div>`;
+
+  tbody.innerHTML = r4ScoreBets.map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    let r4Display = '\u2014';
+    let r4Class = '';
+    if ((g.r4Thru || 0) > 0 && g.r4Strokes !== null) {
+      r4Display = g.r4Strokes;
+      if (g.r4Thru >= 18) {
+        if (b.type === 'r4over') {
+          r4Class = g.r4Strokes > b.line ? 'score-over' : g.r4Strokes < b.line ? 'score-under' : 'score-even';
+        } else {
+          r4Class = g.r4Strokes < b.line ? 'score-under' : g.r4Strokes > b.line ? 'score-over' : 'score-even';
+        }
+      }
+    }
+    const thruDisplay = (g.r4Thru || 0) === 0 ? '\u2014' : g.r4Thru >= 18 ? 'F' : g.r4Thru;
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td>${b.label}</td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell ${r4Class}">${r4Display}</span></td>
+      <td class="center"><span class="score-cell ${r4ToPar(g).cls}">${r4ToPar(g).display}</span></td>
+      <td class="center"><span class="score-cell">${thruDisplay}</span></td>
+      <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderR4Best() {
+  const tbody = document.getElementById('r4bestBody');
+  document.getElementById('r4bestPnl').innerHTML = pnlBadgeHtml('r4best');
+  tbody.innerHTML = bets.filter(b => b.type === 'r4best').map(b => {
+    const g = golfers[b.golfer];
+    const status = getBetStatus(b);
+    let r4Display = '\u2014';
+    if ((g.r4Thru || 0) > 0 && g.r4Strokes !== null) {
+      r4Display = g.r4Strokes;
+    }
+    const thruDisplay = (g.r4Thru || 0) === 0 ? '\u2014' : g.r4Thru >= 18 ? 'F' : g.r4Thru;
+    return `<tr>
+      <td><div class="golfer-cell"><span class="golfer-name">${b.golfer}</span></div></td>
+      <td>${b.label}</td>
+      <td class="right"><span class="odds ${getOddsClass(b.odds)}">${b.odds}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.risk)}</span></td>
+      <td class="right"><span class="money">${formatMoney(b.toWin)}</span></td>
+      <td class="center"><span class="score-cell">${r4Display}</span></td>
       <td class="center"><span class="score-cell">${thruDisplay}</span></td>
       <td class="center"><span class="status-chip status-${status}">${statusLabel(status)}</span></td>
     </tr>`;
@@ -2782,6 +3112,9 @@ function renderAll() {
   renderR2Matchup();
   renderR3Matchup();
   renderR3Over();
+  renderR4Matchup();
+  renderR4Score();
+  renderR4Best();
   renderR2ThreeBall();
   renderR2Under();
   renderRoundRobin();
