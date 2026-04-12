@@ -1762,17 +1762,22 @@ function getBetStatus(bet) {
   const gTotalPlayed = (g ? (g.r1Thru || 0) + (g.r2Thru || 0) + (g.r3Thru || 0) + (g.r4Thru || 0) : 0);
   if (!g || gTotalPlayed === 0) return 'pending';
   
+  // Tournament is final when R4 is complete for this golfer (or they were cut)
+  const tourneyFinal = g.cut || (g.r4Thru || 0) >= 18;
   if (bet.type === 'outright') {
     if (g.cut) return 'lost';
+    if (tourneyFinal) return g.pos === 1 ? 'won' : 'lost';
     if (g.pos === 1) return 'winning';
     return g.pos <= 5 ? 'winning' : 'losing';
   }
   if (bet.type === 'top10') {
     if (g.cut) return 'lost';
+    if (tourneyFinal) return g.pos <= 10 ? 'won' : 'lost';
     return g.pos <= 10 ? 'winning' : 'losing';
   }
   if (bet.type === 'top20') {
     if (g.cut) return 'lost';
+    if (tourneyFinal) return g.pos <= 20 ? 'won' : 'lost';
     return g.pos <= 20 ? 'winning' : 'losing';
   }
   if (bet.type === 'r1under') {
