@@ -1744,8 +1744,8 @@ function parseToPar(scoreStr) {
 }
 
 function startAutoRefresh() {
-  fetchLiveScores();
-  refreshTimer = setInterval(fetchLiveScores, REFRESH_INTERVAL);
+  fetchLiveScores(); // fetch once on load, then stop — tournament is final
+  // refreshTimer = setInterval(fetchLiveScores, REFRESH_INTERVAL);
 }
 
 // === HELPERS ===
