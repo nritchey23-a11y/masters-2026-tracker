@@ -1351,7 +1351,7 @@ const bets = [
   // Outright (additional)
   { id: 61, golfer: 'Rory McIlroy', type: 'outright', label: 'Win Tournament', odds: '-250', risk: 5000, toWin: 2000 },
   { id: 62, golfer: 'Rory McIlroy', type: 'outright', label: 'Win Tournament', odds: '-136', risk: 680, toWin: 500 },
-  { id: 63, golfer: 'Rory McIlroy', type: 'r3leader', label: 'R3 Leader', odds: '-250', risk: 1250, toWin: 500 },
+  { id: 63, golfer: 'Rory McIlroy', type: 'r3leader', label: 'R3 Leader (Dead Heat)', odds: '-250', risk: 1250, toWin: 250, settled: 'won' },
 ];
 
 // === ROUND ROBIN DATA ===
@@ -1699,16 +1699,14 @@ function getBetStatus(bet) {
     return 'tied';
   }
   if (bet.type === 'r3leader') {
-    // Wins if golfer is the sole leader after R3 (lowest total to-par through 54 holes)
+    if (bet.settled) return bet.settled;
     if (g.r3Thru === 0) return 'pending';
-    // Check current position — if they're T1 or 1, they're leading
     const pos = g.displayPos || g.pos;
     if (g.r3Thru >= 18) {
       if (pos === '1') return 'won';
-      if (pos && pos.startsWith('T1')) return 'push'; // tied for lead could push or lose depending on rules
+      if (pos && pos.startsWith('T1')) return 'won'; // dead heat graded as win (half payout)
       return 'lost';
     }
-    // In progress
     if (pos === '1' || (pos && pos.startsWith('T1'))) return 'winning';
     if (pos && parseInt(pos.replace('T','')) <= 3) return 'pending';
     return 'losing';
