@@ -1800,9 +1800,14 @@ function getBetStatus(bet) {
     const opp = golfers[bet.opponent];
     const oppTotalPlayed = opp ? (opp.r1Thru || 0) + (opp.r2Thru || 0) + (opp.r3Thru || 0) + (opp.r4Thru || 0) : 0;
     if (!opp || gTotalPlayed === 0 || oppTotalPlayed === 0) return 'pending';
-    if (g.cut && !opp.cut) return 'losing';
-    if (!g.cut && opp.cut) return 'winning';
+    if (g.cut && !opp.cut) return tourneyFinal ? 'lost' : 'losing';
+    if (!g.cut && opp.cut) return tourneyFinal ? 'won' : 'winning';
     if (g.cut && opp.cut) return 'push';
+    if (tourneyFinal) {
+      if (g.toParNum < opp.toParNum) return 'won';
+      if (g.toParNum > opp.toParNum) return 'lost';
+      return 'push';
+    }
     if (g.toParNum < opp.toParNum) return 'winning';
     if (g.toParNum > opp.toParNum) return 'losing';
     return 'tied';
@@ -2358,6 +2363,7 @@ function renderKPIs() {
     if (status === 'push') {
       settled++;
       pushes++;
+      settledRisk += b.risk;
     }
     if (status === 'won' || status === 'winning') {
       projPnl += b.toWin;
@@ -2371,7 +2377,7 @@ function renderKPIs() {
     const status = getRRParlayStatus(p);
     if (status === 'won') { pnl += getRRParlayProfit(p); settled++; wins++; settledRisk += RR_BET_SIZE; }
     if (status === 'lost') { pnl -= RR_BET_SIZE; settled++; settledRisk += RR_BET_SIZE; }
-    if (status === 'push') { settled++; pushes++; }
+    if (status === 'push') { settled++; pushes++; settledRisk += RR_BET_SIZE; }
     if (status === 'won' || status === 'winning') { projPnl += getRRParlayProfit(p); }
     else if (status === 'lost' || status === 'losing') { projPnl -= RR_BET_SIZE; }
   });
